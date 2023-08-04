@@ -1,6 +1,60 @@
 from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox
 
-class PopupDialog(QDialog):
+class func_Bundle(QDialog):
+    def __init__(self, main_window):
+        super().__init__()
+        self.setWindowTitle('기능 모음')
+        self.main_window = main_window
+        layout = QVBoxLayout(self)
+
+        layout2 = QHBoxLayout()
+        layout.addLayout(layout2)
+
+        self.do_group_by_btn = QPushButton()
+        self.do_group_by_btn.setText('집계 함수 실행')
+        layout2.addWidget(self.do_group_by_btn)
+        self.do_group_by_btn.clicked.connect(self.connect_dialog)
+
+        self.exit_group_by_btn = QPushButton()
+        self.exit_group_by_btn.setText('집계 함수 해제')
+        layout2.addWidget(self.exit_group_by_btn)
+        self.exit_group_by_btn.clicked.connect(self.exit_group_by)
+
+        self.exit_dialog_btn = QPushButton()
+        self.exit_dialog_btn.setText('종료')
+        layout.addWidget(self.exit_dialog_btn)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
+        self.table_data = self.main_window.tab_widget.currentWidget().reserve_table_widget
+        self.button_toggle()
+
+    def button_toggle(self):
+        try:
+            if hasattr(self.main_window.tab_widget.currentWidget(), 'reserve_table_widget'):
+                self.do_group_by_btn.setEnabled(True)
+                self.exit_group_by_btn.setEnabled(True)
+            else:
+                self.do_group_by_btn.setEnabled(False)
+                self.exit_group_by_btn.setEnabled(False)
+        except Exception as e:
+            QMessageBox(self, '경고', f'{e}')
+
+    def connect_dialog(self):
+        # 집계 관련 다이얼로그 호출 함수
+        try:
+            if self.table_data.rowCount() > 0:
+                self.accept()
+                self.main_window.group_by_dialog()
+        except Exception as e:
+            QMessageBox(self, '경고', f'{e}')
+
+    def exit_group_by(self):
+        self.main_window.exit_group_by()
+
+    def exit_dialog(self):
+        # 다이얼 로그 종료
+        self.reject()
+
+class groupby_Fucn(QDialog):
     # 집계 기능 다이얼 로그
     def __init__(self, main_window, colCount, header_col):
         super().__init__()
@@ -43,10 +97,10 @@ class PopupDialog(QDialog):
         self.accept_btn.setText('집계 실행')
         layout4.addWidget(self.accept_btn)
         self.accept_btn.clicked.connect(self.accept_func)
-        self.close_btn = QPushButton()
-        self.close_btn.setText('취소')
-        layout4.addWidget(self.close_btn)
-        self.close_btn.clicked.connect(self.cancle_func)
+        self.exit_dialog_btn = QPushButton()
+        self.exit_dialog_btn.setText('취소')
+        layout4.addWidget(self.exit_dialog_btn)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
 
         self.colCount = colCount
         self.header_col = header_col
@@ -83,6 +137,6 @@ class PopupDialog(QDialog):
             return
         self.accept()
 
-    def cancle_func(self):
+    def exit_dialog(self):
         # 다이얼 로그 종료
         self.reject()
