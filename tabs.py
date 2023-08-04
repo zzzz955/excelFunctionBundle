@@ -1,8 +1,7 @@
 import os
 import pandas as pd
-from openpyxl import Workbook, load_workbook
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QPushButton, \
-    QLabel, QHBoxLayout, QFileDialog, QMessageBox, QTableWidget, QTableWidgetItem, QListWidget, QAbstractItemView
+    QLabel, QHBoxLayout, QFileDialog, QMessageBox, QTableWidget, QTableWidgetItem
 
 class Tab1(QWidget):
     def __init__(self, main_window):
@@ -156,8 +155,8 @@ class Tab1(QWidget):
         if self.table_widget.rowCount() > 0:
             self.table_widget.sortItems(logicalIndex, order)
 
-'''class Tab2(QWidget):
+class Tab2(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
-        self.layout = QVBoxLayout()'''
+        self.layout = QVBoxLayout()

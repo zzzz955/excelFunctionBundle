@@ -21,9 +21,9 @@ class MainWindow(QMainWindow):
 
         # 탭 노출
         self.tab1 = Tab1(self)
-        #self.tab2 = Tab2(self)
+        self.tab2 = Tab2(self)
         self.tab_widget.addTab(self.tab1, '엑셀 파일 병합 및 집계')
-        #self.tab_widget.addTab(self.tab2, 'r')
+        self.tab_widget.addTab(self.tab2, '')
 
     def open_tab1_dialog(self):
         # 집계 관련 다이얼로그 노출

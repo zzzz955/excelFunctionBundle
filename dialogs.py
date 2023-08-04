@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox
 
 class PopupDialog(QDialog):
-    # 집계기능 다이얼로그
+    # 집계기능 다이얼 로그
     def __init__(self, main_window, colCount, header_col):
         super().__init__()
         self.setWindowTitle('집계 팝업')
