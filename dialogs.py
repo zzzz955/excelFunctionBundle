@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox
 
 class PopupDialog(QDialog):
+    # 집계기능 다이얼로그
     def __init__(self, main_window, colCount, header_col):
         super().__init__()
         self.setWindowTitle('집계 팝업')
@@ -56,6 +57,7 @@ class PopupDialog(QDialog):
         self.selected_radio_button = None
 
     def cmb_add_item(self):
+        # 콤보박스에 테이블의 헤더 목록 가져오기
         for col in range(self.colCount):
             header_item = self.header_col[col]
             if header_item:
@@ -63,6 +65,7 @@ class PopupDialog(QDialog):
                 self.cmb2.addItem(header_item)
 
     def accept_func(self):
+        # 다이얼로그 값 전달
         self.selected_combo_item = self.cmb1.currentText()
         self.selected_combo_item2 = self.cmb2.currentText()
         if self.radio_btn1.isChecked():
@@ -81,4 +84,5 @@ class PopupDialog(QDialog):
         self.accept()
 
     def cancle_func(self):
+        # 다이얼로그 종료
         self.reject()

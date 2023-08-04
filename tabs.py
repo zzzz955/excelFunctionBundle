@@ -47,13 +47,18 @@ class Tab1(QWidget):
         self.excel_download_btn.setText('엑셀 파일 다운로드')
         layout4.addWidget(self.excel_download_btn)
         self.excel_download_btn.clicked.connect(self.table_to_excel)
+
+        # 테이블 정렬
         self.table_widget.horizontalHeader().sortIndicatorChanged.connect(self.sortTable)
 
     def excel_upload(self):
+        # 엑셀 업로드 함수
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
+            # 첫 파일을 데이터프레임화 하여 헤더 설정
             df = pd.read_excel(file_paths[0], na_filter=False)
             try:
+                # 나머지 파일 기존 데이터프레임에 붙이기
                 for file in file_paths[1:]:
                     df2 = pd.read_excel(file, na_filter=False)
                     df = pd.concat([df, df2], ignore_index=True)
@@ -64,6 +69,7 @@ class Tab1(QWidget):
                 print(e)
 
     def df_to_table(self, df):
+        # 데이터 프레임 테이블화
         self.table_widget.setRowCount(len(df))
         self.table_widget.setColumnCount(len(df.columns))
         self.table_widget.setHorizontalHeaderLabels(df.columns)
@@ -73,10 +79,12 @@ class Tab1(QWidget):
                 item = str(df.iloc[r, c])
                 self.table_widget.setItem(r, c, QTableWidgetItem(item))
         self.table_widget.resizeColumnsToContents()
+        # 행 및 열 개수 노출
         self.t1label1.setText(f'rowCount : {str(self.table_widget.rowCount())}')
         self.t1label2.setText(f'columnCount : {str(self.table_widget.columnCount())}')
 
     def excel_download(self, df):
+        # 병합된 엑셀 파일 다운로드 경로 설정
         file_path = QFileDialog.getSaveFileName(self, '파일 선택', '', 'Excel File(*.xlsx)')
         if not file_path[0]:
             return
@@ -92,6 +100,7 @@ class Tab1(QWidget):
             QMessageBox.warning(self, '오류', f'파일 저장 중 예외 발생, 예외 내용 : {e}')
 
     def table_to_excel(self):
+        # 테이블 데이터프레임화 및 엑셀 파일 저장
         try:
             if self.reserve_table_widget.rowCount()>0:
                 header_col = []
@@ -112,6 +121,7 @@ class Tab1(QWidget):
             QMessageBox.warning(self, '경고', f'엑셀 파일 변환 중 예외 발생, 예외 내용 : {e}')
 
     def df_to_reserve_table(self, df):
+        # 기존 병합 데이터프레임 값 임시 테이블에 저장
         self.reserve_table_widget.setRowCount(len(df))
         self.reserve_table_widget.setColumnCount(len(df.columns))
         self.reserve_table_widget.setHorizontalHeaderLabels(df.columns)
@@ -122,6 +132,7 @@ class Tab1(QWidget):
         self.reserve_table_widget.resizeColumnsToContents()
 
     def connect_dialog(self):
+        # 집계 관련 다이얼로그 호출 함수
         try:
             if self.reserve_table_widget.rowCount() > 0:
                 self.main_window.open_tab1_dialog()
@@ -129,16 +140,19 @@ class Tab1(QWidget):
             print(e)
 
     def do_group_by(self, cmb1, cmb2, radio_btn1):
+        # 다이얼로그 값을 받아와 GROUP BY 기능 실행
         df = self.df
         group = df.groupby(by=cmb1, as_index=False)[cmb2].agg(radio_btn1)
         group_sorted = group.sort_values(by=cmb2, ascending=False)
         self.df_to_table(group_sorted)
 
     def exit_group_by(self):
+        # 집계 테이블 원상태로 복구
         if self.reserve_table_widget.rowCount() > 0:
             self.df_to_table(self.df)
 
     def sortTable(self, logicalIndex, order):
+        # 각 헤더에 맞게 정렬
         if self.table_widget.rowCount() > 0:
             self.table_widget.sortItems(logicalIndex, order)
 
