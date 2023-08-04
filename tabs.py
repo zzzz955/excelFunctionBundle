@@ -139,14 +139,14 @@ class Tab1(QWidget):
             print(e)
 
     def do_group_by(self, cmb1, cmb2, radio_btn1):
-        # 다이얼로그 값을 받아와 GROUP BY 기능 실행
+        # 다이얼 로그 값을 받아와 GROUP BY 기능 실행
         df = self.df
         group = df.groupby(by=cmb1, as_index=False)[cmb2].agg(radio_btn1)
         group_sorted = group.sort_values(by=cmb2, ascending=False)
         self.df_to_table(group_sorted)
 
     def exit_group_by(self):
-        # 집계 테이블 원상태로 복구
+        # 집계 테이블 원 상태로 복구
         if self.reserve_table_widget.rowCount() > 0:
             self.df_to_table(self.df)
 

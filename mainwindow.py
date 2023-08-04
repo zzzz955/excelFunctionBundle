@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.tab2, '')
 
     def open_tab1_dialog(self):
-        # 집계 관련 다이얼로그 노출
+        # 집계 관련 다이얼 로그 노출
         colCount = self.tab1.reserve_table_widget.columnCount()
         header_col = []
         for column in range(colCount):
@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         dialog = PopupDialog(self, colCount, header_col)
         result = dialog.exec_()
 
-        # 다이얼로그로 부터 값 가져오기
+        # 다이얼 로그로 부터 값 가져오기
         if result == QDialog.Accepted:
             cmb1 = dialog.selected_combo_item
             cmb2 = dialog.selected_combo_item2
