@@ -24,7 +24,10 @@ class func_Bundle(QDialog):
         self.exit_dialog_btn.setText('종료')
         layout.addWidget(self.exit_dialog_btn)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
-        self.table_data = self.main_window.tab_widget.currentWidget().reserve_table_widget
+        if hasattr(self.main_window.tab_widget.currentWidget(), 'reserve_table_widget'):
+            self.table_data = self.main_window.tab_widget.currentWidget().reserve_table_widget
+        else:
+            self.table_data=None
         self.button_toggle()
 
     def button_toggle(self):
