@@ -1,0 +1,4 @@
+PyQt5
+qt-material
+pandas
+xlsxwriter
