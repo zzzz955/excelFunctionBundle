@@ -25,10 +25,10 @@ class MainWindow(QMainWindow):
         layout2.addWidget(self.excel_upload_btn)
         self.excel_upload_btn.clicked.connect(self.single_sheet_excel_file_upload)
 
-        self.excel_download_btn2 = QPushButton()
-        self.excel_download_btn2.setText('다중 시트 엑셀 파일 업로드')
-        layout2.addWidget(self.excel_download_btn2)
-        # self.excel_download_btn2.clicked.connect(self.merge_to_onefile)
+        self.excel_upload_btn2 = QPushButton()
+        self.excel_upload_btn2.setText('다중 시트 엑셀 파일 업로드')
+        layout2.addWidget(self.excel_upload_btn2)
+        self.excel_upload_btn2.clicked.connect(self.multiple_sheet_excel_file_upload)
 
         self.func_button = QPushButton()
         self.func_button.setText('기능')
@@ -48,12 +48,15 @@ class MainWindow(QMainWindow):
     def single_sheet_excel_file_upload(self):
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
-            self.tab_widget.currentWidget().excel_upload(file_paths)
+            self.tab_widget.currentWidget().single_sheet_excel_upload(file_paths)
 
     def multiple_sheet_excel_file_upload(self):
-        file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
-        if file_paths:
-            self.tab_widget.currentWidget().excel_upload(file_paths)
+        try:
+            file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
+            if file_paths:
+                self.tab_widget.currentWidget().multiple_sheet_excel_file_upload(file_paths)
+        except Exception as e:
+            print(e)
 
     def func_Bundle_exec(self):
         dialog = func_Bundle(self)
