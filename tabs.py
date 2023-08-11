@@ -39,7 +39,7 @@ class Tab1(QWidget):
 
         self.file_paths = []
 
-    def single_sheet_excel_upload(self, file_paths):
+    def single_sheet_excel_file_Conversion(self, file_paths):
         # 엑셀 업로드 함수
         try:
             self.file_paths = file_paths
@@ -55,7 +55,7 @@ class Tab1(QWidget):
         except Exception as e:
             print(e)
 
-    def multiple_sheet_excel_file_upload(self, file_paths):
+    def multiple_sheet_excel_file_Conversion(self, file_paths):
         # 엑셀 업로드 함수
         try:
             self.file_paths = file_paths

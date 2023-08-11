@@ -20,15 +20,15 @@ class MainWindow(QMainWindow):
         self.tab_widget = QTabWidget()
         self.layout.addWidget(self.tab_widget)
 
-        self.excel_upload_btn = QPushButton()
-        self.excel_upload_btn.setText('단일 시트 엑셀 파일 업로드')
-        layout2.addWidget(self.excel_upload_btn)
-        self.excel_upload_btn.clicked.connect(self.single_sheet_excel_file_upload)
+        self.single_sheet_excel_upload_btn = QPushButton()
+        self.single_sheet_excel_upload_btn.setText('단일 시트 엑셀 파일 업로드')
+        layout2.addWidget(self.single_sheet_excel_upload_btn)
+        self.single_sheet_excel_upload_btn.clicked.connect(self.single_sheet_excel_file_upload)
 
-        self.excel_upload_btn2 = QPushButton()
-        self.excel_upload_btn2.setText('다중 시트 엑셀 파일 업로드')
-        layout2.addWidget(self.excel_upload_btn2)
-        self.excel_upload_btn2.clicked.connect(self.multiple_sheet_excel_file_upload)
+        self.multiple_sheet_excel_upload_btn = QPushButton()
+        self.multiple_sheet_excel_upload_btn.setText('다중 시트 엑셀 파일 업로드')
+        layout2.addWidget(self.multiple_sheet_excel_upload_btn)
+        self.multiple_sheet_excel_upload_btn.clicked.connect(self.multiple_sheet_excel_file_upload)
 
         self.func_button = QPushButton()
         self.func_button.setText('기능')
@@ -48,13 +48,13 @@ class MainWindow(QMainWindow):
     def single_sheet_excel_file_upload(self):
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
-            self.tab_widget.currentWidget().single_sheet_excel_upload(file_paths)
+            self.tab_widget.currentWidget().single_sheet_excel_file_Conversion(file_paths)
 
     def multiple_sheet_excel_file_upload(self):
         try:
             file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
             if file_paths:
-                self.tab_widget.currentWidget().multiple_sheet_excel_file_upload(file_paths)
+                self.tab_widget.currentWidget().multiple_sheet_excel_file_Conversion(file_paths)
         except Exception as e:
             print(e)
 
