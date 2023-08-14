@@ -49,12 +49,14 @@ class MainWindow(QMainWindow):
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
             self.tab_widget.currentWidget().single_sheet_excel_file_Conversion(file_paths)
+            self.tab1.excel_download_btn2.setEnabled(True)
 
     def multiple_sheet_excel_file_upload(self):
         try:
             file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
             if file_paths:
                 self.tab_widget.currentWidget().multiple_sheet_excel_file_Conversion(file_paths)
+                self.tab1.excel_download_btn2.setEnabled(False)
         except Exception as e:
             print(e)
 

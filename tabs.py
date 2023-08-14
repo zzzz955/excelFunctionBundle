@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QPushButton, \
-    QLabel, QHBoxLayout, QFileDialog, QMessageBox, QTableWidget, QTableWidgetItem
+    QLabel, QHBoxLayout, QFileDialog, QMessageBox, QTableWidget, QTableWidgetItem, QComboBox
 
 class Tab1(QWidget):
     def __init__(self, main_window):
@@ -24,12 +24,12 @@ class Tab1(QWidget):
         self.layout.addLayout(layout3)
 
         self.excel_download_btn = QPushButton()
-        self.excel_download_btn.setText('엑셀 파일 다운로드(시트 내 병합)')
+        self.excel_download_btn.setText('다운로드(단일 시트 내 데이터 병합)')
         layout3.addWidget(self.excel_download_btn)
         self.excel_download_btn.clicked.connect(self.table_to_excel)
 
         self.excel_download_btn2 = QPushButton()
-        self.excel_download_btn2.setText('엑셀 파일 다운로드(파일별 시트생성)')
+        self.excel_download_btn2.setText('다운로드(파일별 시트 생성)')
         layout3.addWidget(self.excel_download_btn2)
         self.excel_download_btn2.clicked.connect(self.merge_to_onefile)
 
@@ -160,11 +160,11 @@ class Tab1(QWidget):
                 df_list = []
                 sheet_names = []
                 excel_writer = pd.ExcelWriter(save_file_path, engine='xlsxwriter')
-
                 for file in self.file_paths:
                     df = pd.read_excel(file, na_filter=False)
-                    df_list.append(df)
                     sheet_names.append(os.path.basename(file)[:10] + '...')
+                    df = df.applymap(lambda value: str(value) if isinstance(value, (int, float)) and len(str(value)) >= 10 else value)
+                    df_list.append(df)
                     n = 0
                     while len(sheet_names) != len(set(sheet_names)):
                         increse = lambda x: x+1
@@ -176,7 +176,7 @@ class Tab1(QWidget):
                 excel_writer.close()
                 result = QMessageBox.question(self, '정보', '엑셀 파일 생성 완료, 생성한 파일을 여시겠습니까?',
                                               QMessageBox.Ok | QMessageBox.No,
-                                              QMessageBox.No)
+                                              QMessageBox.Ok)
                 if result == QMessageBox.Ok:
                     os.startfile(save_file_path)
                 else:
@@ -189,3 +189,5 @@ class Tab2(QWidget):
         super().__init__()
         self.main_window = main_window
         self.layout = QVBoxLayout()
+        self.table_widget = QTableWidget()
+        self.combo_box = QComboBox()
