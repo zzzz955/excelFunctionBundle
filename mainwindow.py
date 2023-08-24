@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         self.tab1 = Tab1(self)
         self.tab2 = Tab2(self)
         self.tab_widget.addTab(self.tab1, '엑셀 파일 병합')
-        self.tab_widget.addTab(self.tab2, '')
+        self.tab_widget.addTab(self.tab2, '단일 시트')
         self.header = []
 
     def single_sheet_excel_file_upload(self):
