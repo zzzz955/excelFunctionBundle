@@ -35,47 +35,7 @@ class Tab1(QWidget):
         self.file_paths = []
         self.df = None
 
-    def single_sheet_excel_file_Conversion(self, file_paths):
-        # 엑셀 업로드 함수
-        self.file_paths = file_paths
-        df = dataframes.concat_singlesheet_excelfiles(file_paths)
-        self.df_to_table(df)
-        self.df_to_reserve_table(df)
-        self.df = df
 
-    def multiple_sheet_excel_file_Conversion(self, file_paths):
-        self.file_paths = file_paths
-        df = dataframes.concat_multiplesheets_excelfiles(file_paths)
-        self.df_to_table(df)
-        self.df_to_reserve_table(df)
-        self.df = df
-
-    def df_to_table(self, df):
-        # 데이터 프레임 테이블화
-        self.table_widget.setRowCount(len(df))
-        self.table_widget.setColumnCount(len(df.columns))
-        self.table_widget.setHorizontalHeaderLabels(df.columns)
-        self.table_widget.horizontalHeader().setSortIndicatorShown(True)
-        for r in range(len(df)):
-            for c in range(len(df.columns)):
-                item = str(df.iloc[r, c])
-                self.table_widget.setItem(r, c, QTableWidgetItem(item))
-        self.table_widget.resizeColumnsToContents()
-        # 행 및 열 개수 노출
-        self.t1label1.setText(f'rowCount : {str(self.table_widget.rowCount())}')
-        self.t1label2.setText(f'columnCount : {str(self.table_widget.columnCount())}')
-        self.main_window.header = df.columns.tolist()
-
-    def df_to_reserve_table(self, df):
-        # 기존 병합 데이터프레임 값 임시 테이블에 저장
-        self.reserve_table_widget.setRowCount(len(df))
-        self.reserve_table_widget.setColumnCount(len(df.columns))
-        self.reserve_table_widget.setHorizontalHeaderLabels(df.columns)
-        for r in range(len(df)):
-            for c in range(len(df.columns)):
-                item = str(df.iloc[r, c])
-                self.reserve_table_widget.setItem(r, c, QTableWidgetItem(item))
-        self.reserve_table_widget.resizeColumnsToContents()
 
     def do_group_by(self, cmb1, cmb2, radio_btn1):
         # 다이얼 로그 값을 받아와 GROUP BY 기능 실행

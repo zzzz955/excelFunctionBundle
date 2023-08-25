@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox, QLineEdit
+from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox, QLineEdit, QTableWidget
+from PyQt5.QtGui import QValidator, QIntValidator
 
 class func_Bundle(QDialog):
     def __init__(self, main_window):
@@ -28,6 +29,7 @@ class func_Bundle(QDialog):
         self.do_group_by_btn.clicked.connect(self.con_group_by_dialog)
         self.exit_group_by_btn.clicked.connect(self.exit_group_by)
         self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
+        self.do_insert_btn_h.clicked.connect(self.con_row_insert_dialog)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
 
         if hasattr(self.main_window.tab_widget.currentWidget(), 'table_widget'):
@@ -51,10 +53,16 @@ class func_Bundle(QDialog):
             self.main_window.group_by_dialog()
 
     def con_col_insert_dialog(self):
-        # 삽입 관련 다이얼로그 호출 함수
+        # 열 삽입 관련 다이얼로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.insert_col_dialog()
+
+    def con_row_insert_dialog(self):
+        # 행 삽입 관련 다이얼로그 호출 함수
+        if self.table_data.rowCount() > 0:
+            self.accept()
+            self.main_window.insert_row_dialog()
 
     def exit_group_by(self):
         self.main_window.exit_group_by()
@@ -215,6 +223,117 @@ class insert_col_Func(QDialog):
                 QMessageBox.warning(self, '경고', '데이터 삽입 위치를 선택해 주세요.')
                 return
             self.accept()
+        except Exception as e:
+            print(e)
+
+    def exit_dialog(self):
+        # 다이얼 로그 종료
+        self.reject()
+
+class insert_row_Func(QDialog):
+    def __init__(self, main_window, header):
+        super().__init__()
+        self.setWindowTitle('데이터 삽입')
+        self.main_window = main_window
+        self.header = header
+        self.setGeometry(self.x(), self.y(), 800, self.height())
+
+        layout = QVBoxLayout()
+        layout2 = QHBoxLayout()
+        layout3 = QHBoxLayout()
+        layout4 = QHBoxLayout()
+        self.label1 = QLabel('기준 Row : ')
+        self.lineedit1 = QLineEdit()
+        self.label2 = QLabel('삽입 위치 지정 : ')
+        self.radio_btn1 = QRadioButton('기준 Row 위', self)
+        self.radio_btn2 = QRadioButton('기준 Row 아래', self)
+        self.row_add_btn = QPushButton('행 추가')
+        self.table_widget = QTableWidget()
+        self.accept_btn = QPushButton('삽입')
+        self.exit_dialog_btn = QPushButton('취소')
+
+        layout.addLayout(layout2)
+        layout2.addWidget(self.label1)
+        layout2.addWidget(self.lineedit1)
+
+        layout.addLayout(layout3)
+        layout2.addWidget(self.label2)
+        layout2.addWidget(self.radio_btn1)
+        layout2.addWidget(self.radio_btn2)
+
+        layout2.addWidget(self.row_add_btn)
+        layout.addWidget(self.table_widget)
+
+        layout.addLayout(layout4)
+        layout4.addWidget(self.accept_btn)
+        layout4.addWidget(self.exit_dialog_btn)
+        self.setLayout(layout)
+
+        self.lineedit1.setValidator(QIntValidator())
+
+        self.row_add_btn.clicked.connect(self.add_table_row)
+        self.accept_btn.clicked.connect(self.accept_func)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
+
+        self.selected_row_index = None
+        self.selected_radio_button = None
+        self.insert_list = []
+        self.set_table()
+
+    def set_table(self):
+        new_header = self.header.copy()
+        new_header.insert(0, '삭제')
+        self.table_widget.setColumnCount(len(new_header))
+        self.table_widget.setHorizontalHeaderLabels(new_header)
+        self.table_widget.resizeColumnsToContents()
+
+    def add_table_row(self):
+        try:
+            del_btn = QPushButton('삭제')
+            del_btn.clicked.connect(self.del_table_row)
+            row_index = self.table_widget.rowCount()
+            self.table_widget.insertRow(row_index)
+            self.table_widget.setCellWidget(row_index, 0, del_btn)
+        except Exception as e:
+            print(e)
+
+    def del_table_row(self):
+        try:
+            sender = self.sender()
+            if isinstance(sender, QPushButton):
+                index = self.table_widget.indexAt(sender.pos())
+                self.table_widget.removeRow(index.row())
+        except Exception as e:
+            print(e)
+
+    def accept_func(self):
+        try:
+            self.insert_list = []
+            if self.table_widget.rowCount() > 0:
+                if self.lineedit1.text():
+                    self.selected_row_index = self.lineedit1.text()
+                else:
+                    QMessageBox.warning(self, '경고', '데이터 삽입 기준 Row를 지정해 주세요.')
+                    return
+                if self.radio_btn1.isChecked():
+                    self.selected_radio_button = 0
+                elif self.radio_btn2.isChecked():
+                    self.selected_radio_button = 1
+                else:
+                    QMessageBox.warning(self, '경고', '데이터 삽입 위치를 선택해 주세요.')
+                    return
+                rows = self.table_widget.rowCount()
+                cols = self.table_widget.columnCount()-1
+                for row in range(rows):
+                    insert_row = []
+                    for col in range(cols):
+                        item = self.table_widget.item(row, col+1)
+                        if item is not None:
+                            insert_row.append(item.text())
+                        else:
+                            insert_row.append("")
+                    self.insert_list.append(insert_row)
+                self.accept()
         except Exception as e:
             print(e)
 

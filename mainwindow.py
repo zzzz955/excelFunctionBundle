@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QTableWidget, QTableWidgetItem
 from qt_material import apply_stylesheet
 from tabs import *
 from dialogs import *
@@ -8,7 +8,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('엑셀 업무 툴')
-        self.setGeometry(0, 0, 600, 800)
+        self.setGeometry(0, 0, 800, self.height())
         self.layout = QVBoxLayout()
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.layout)
@@ -44,12 +44,59 @@ class MainWindow(QMainWindow):
     def single_sheet_excel_file_upload(self):
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
-            self.tab_widget.currentWidget().single_sheet_excel_file_Conversion(file_paths)
+            self.single_sheet_excel_file_Conversion(file_paths)
 
     def multiple_sheet_excel_file_upload(self):
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
-            self.tab_widget.currentWidget().multiple_sheet_excel_file_Conversion(file_paths)
+            self.multiple_sheet_excel_file_Conversion(file_paths)
+
+    def single_sheet_excel_file_Conversion(self, file_paths):
+        # 엑셀 업로드 함수
+        try:
+            self.tab_widget.currentWidget().file_paths = file_paths
+            df = dataframes.concat_singlesheet_excelfiles(file_paths)
+            self.df_to_table(df)
+            self.df_to_reserve_table(df)
+            self.tab_widget.currentWidget().df = df
+        except Exception as e:
+            print(e)
+
+    def multiple_sheet_excel_file_Conversion(self, file_paths):
+        self.tab_widget.currentWidget().file_paths = file_paths
+        df = dataframes.concat_multiplesheets_excelfiles(file_paths)
+        self.df_to_table(df)
+        self.df_to_reserve_table(df)
+        self.tab_widget.currentWidget().df = df
+
+    def df_to_table(self, df):
+        # 데이터 프레임 테이블화
+        self.header = []
+        self.tab_widget.currentWidget().table_widget.setRowCount(len(df))
+        self.tab_widget.currentWidget().table_widget.setColumnCount(len(df.columns))
+        self.tab_widget.currentWidget().table_widget.setHorizontalHeaderLabels(df.columns)
+        self.tab_widget.currentWidget().table_widget.horizontalHeader().setSortIndicatorShown(True)
+        for r in range(len(df)):
+            for c in range(len(df.columns)):
+                item = str(df.iloc[r, c])
+                self.tab_widget.currentWidget().table_widget.setItem(r, c, QTableWidgetItem(item))
+        self.tab_widget.currentWidget().table_widget.resizeColumnsToContents()
+        # 행 및 열 개수 노출
+        self.tab_widget.currentWidget().t1label1.setText(f'rowCount : {str(self.tab_widget.currentWidget().table_widget.rowCount())}')
+        self.tab_widget.currentWidget().t1label2.setText(f'columnCount : {str(self.tab_widget.currentWidget().table_widget.columnCount())}')
+        for column in range(self.tab_widget.currentWidget().table_widget.columnCount()):
+            header_item = self.tab_widget.currentWidget().table_widget.horizontalHeaderItem(column)
+            self.header.append(header_item.text())
+
+    def df_to_reserve_table(self, df):
+        # 기존 병합 데이터프레임 값 임시 테이블에 저장
+        self.tab_widget.currentWidget().reserve_table_widget.setRowCount(len(df))
+        self.tab_widget.currentWidget().reserve_table_widget.setColumnCount(len(df.columns))
+        self.tab_widget.currentWidget().reserve_table_widget.setHorizontalHeaderLabels(df.columns)
+        for r in range(len(df)):
+            for c in range(len(df.columns)):
+                item = str(df.iloc[r, c])
+                self.tab_widget.currentWidget().reserve_table_widget.setItem(r, c, QTableWidgetItem(item))
 
     def func_Bundle_exec(self):
         dialog = func_Bundle(self)
@@ -96,8 +143,22 @@ class MainWindow(QMainWindow):
                     radio_btn = dialog.selected_radio_button
                     insert_header = dialog.inserted_header_val
                     insert_val = dialog.inserted_data_val
-                    # 탭 함수 호출
                     self.do_insert_col(cmb, radio_btn, insert_header, insert_val)
+                elif result == QDialog.Rejected:
+                    return
+        except Exception as e:
+            print(e)
+
+    def insert_row_dialog(self):
+        try:
+            if self.tab_widget.currentWidget().table_widget:
+                dialog = insert_row_Func(self, self.header)
+                result = dialog.exec()
+                if result == QDialog.Accepted:
+                    row_index = int(dialog.selected_row_index)
+                    datas = dialog.insert_list
+                    radio_btn = dialog.selected_radio_button
+                    self.do_insert_row(row_index, radio_btn, datas)
                 elif result == QDialog.Rejected:
                     return
         except Exception as e:
@@ -108,12 +169,25 @@ class MainWindow(QMainWindow):
         df = self.tab_widget.currentWidget().df
         group = df.groupby(by=cmb1, as_index=False)[cmb2].agg(radio_btn1)
         group_sorted = group.sort_values(by=cmb2, ascending=False)
-        self.tab_widget.currentWidget().df_to_table(group_sorted)
+        self.df_to_table(group_sorted)
 
     def do_insert_col(self, cmb, radio_btn, insert_header, insert_val):
-        copy_df = self.tab_widget.currentWidget().df.copy()
-        copy_df.insert(cmb+radio_btn, insert_header, insert_val)
-        self.tab_widget.currentWidget().df_to_table(copy_df)
+        self.tab_widget.currentWidget()\
+            .table_widget.insertColumn(cmb+radio_btn)
+        self.tab_widget.currentWidget()\
+            .table_widget.setHorizontalHeaderItem(cmb+radio_btn, QTableWidgetItem(insert_header))
+        for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):
+            self.tab_widget.currentWidget().table_widget.setItem(row, cmb+radio_btn, QTableWidgetItem(insert_val))
+
+    def do_insert_row(self, row_index, radio_btn, datas):
+        try:
+            for index, data in enumerate(datas):
+                self.tab_widget.currentWidget().table_widget.insertRow(row_index + radio_btn + index - 1)
+                for col in range(len(data)):
+                    self.tab_widget.currentWidget().table_widget.setItem(
+                        row_index + radio_btn + index - 1, col, QTableWidgetItem(data[col]))
+        except Exception as e:
+            print(e)
 
     def close_app(self):
         # 앱 종료
