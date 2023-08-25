@@ -19,6 +19,7 @@ class MainWindow(QMainWindow):
         self.single_sheet_excel_upload_btn = QPushButton('단일 시트 엑셀 파일 업로드')
         self.multiple_sheet_excel_upload_btn = QPushButton('다중 시트 엑셀 파일 업로드')
         self.func_button = QPushButton('기능')
+        self.initialize_func_button = QPushButton('기능 초기화')
         self.close_button = QPushButton('종료')
 
         self.layout.addLayout(layout2)
@@ -26,11 +27,13 @@ class MainWindow(QMainWindow):
         layout2.addWidget(self.single_sheet_excel_upload_btn)
         layout2.addWidget(self.multiple_sheet_excel_upload_btn)
         layout2.addWidget(self.func_button)
+        layout2.addWidget(self.initialize_func_button)
         self.layout.addWidget(self.close_button)
 
         self.single_sheet_excel_upload_btn.clicked.connect(self.single_sheet_excel_file_upload)
         self.multiple_sheet_excel_upload_btn.clicked.connect(self.multiple_sheet_excel_file_upload)
         self.func_button.clicked.connect(self.func_Bundle_exec)
+        self.initialize_func_button.clicked.connect(self.initialize_func)
         self.tab_widget.currentChanged.connect(self.tab_changed)
         self.close_button.clicked.connect(self.close_app)
 
@@ -40,16 +43,43 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.tab1, '엑셀 파일 병합')
         self.tab_widget.addTab(self.tab2, '단일 시트')
         self.header = []
+        self.rows = None
+        self.single_file_paths = None
+        self.multiple_file_paths = None
+
+
+    def data_update(self):
+        self.rows = self.tab_widget.currentWidget().table_widget.rowCount()
+        self.header = []
+        for column in range(self.tab_widget.currentWidget().table_widget.columnCount()):
+            header_item = self.tab_widget.currentWidget().table_widget.horizontalHeaderItem(column)
+            self.header.append(header_item.text())
+        self.tab_widget.currentWidget().t1label1.setText(
+            f'rowCount : {str(self.tab_widget.currentWidget().table_widget.rowCount())}')
+        self.tab_widget.currentWidget().t1label2.setText(
+            f'columnCount : {str(self.tab_widget.currentWidget().table_widget.columnCount())}')
+
+    def initialize_func(self):
+        if self.single_file_paths:
+            file_paths = self.single_file_paths.copy()
+            self.single_sheet_excel_file_Conversion(file_paths)
+        elif self.multiple_file_paths:
+            file_paths = self.multiple_file_paths.copy()
+            self.multiple_sheet_excel_file_Conversion(file_paths)
+        else:
+            return
 
     def single_sheet_excel_file_upload(self):
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
             self.single_sheet_excel_file_Conversion(file_paths)
+            self.single_file_paths = file_paths
 
     def multiple_sheet_excel_file_upload(self):
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
             self.multiple_sheet_excel_file_Conversion(file_paths)
+            self.multiple_file_paths = file_paths
 
     def single_sheet_excel_file_Conversion(self, file_paths):
         # 엑셀 업로드 함수
@@ -57,7 +87,6 @@ class MainWindow(QMainWindow):
             self.tab_widget.currentWidget().file_paths = file_paths
             df = dataframes.concat_singlesheet_excelfiles(file_paths)
             self.df_to_table(df)
-            self.df_to_reserve_table(df)
             self.tab_widget.currentWidget().df = df
         except Exception as e:
             print(e)
@@ -66,7 +95,6 @@ class MainWindow(QMainWindow):
         self.tab_widget.currentWidget().file_paths = file_paths
         df = dataframes.concat_multiplesheets_excelfiles(file_paths)
         self.df_to_table(df)
-        self.df_to_reserve_table(df)
         self.tab_widget.currentWidget().df = df
 
     def df_to_table(self, df):
@@ -87,25 +115,11 @@ class MainWindow(QMainWindow):
         for column in range(self.tab_widget.currentWidget().table_widget.columnCount()):
             header_item = self.tab_widget.currentWidget().table_widget.horizontalHeaderItem(column)
             self.header.append(header_item.text())
-
-    def df_to_reserve_table(self, df):
-        # 기존 병합 데이터프레임 값 임시 테이블에 저장
-        self.tab_widget.currentWidget().reserve_table_widget.setRowCount(len(df))
-        self.tab_widget.currentWidget().reserve_table_widget.setColumnCount(len(df.columns))
-        self.tab_widget.currentWidget().reserve_table_widget.setHorizontalHeaderLabels(df.columns)
-        for r in range(len(df)):
-            for c in range(len(df.columns)):
-                item = str(df.iloc[r, c])
-                self.tab_widget.currentWidget().reserve_table_widget.setItem(r, c, QTableWidgetItem(item))
+        self.rows = self.tab_widget.currentWidget().table_widget.rowCount()
 
     def func_Bundle_exec(self):
         dialog = func_Bundle(self)
         dialog.exec()
-
-    def exit_group_by(self):
-        # 집계 테이블 원 상태로 복구
-        if self.tab_widget.currentWidget().reserve_table_widget.rowCount() > 0:
-            self.tab_widget.currentWidget().exit_group_by()
 
     def tab_changed(self):
         self.header = []
@@ -116,7 +130,7 @@ class MainWindow(QMainWindow):
     def group_by_dialog(self):
         try:
             # 집계 관련 다이얼 로그 노출
-            if self.tab_widget.currentWidget().reserve_table_widget:
+            if self.tab_widget.currentWidget().table_widget:
                 dialog = groupby_Func(self, self.header)
                 result = dialog.exec()
                 # 다이얼 로그로 부터 값 가져오기
@@ -152,7 +166,7 @@ class MainWindow(QMainWindow):
     def insert_row_dialog(self):
         try:
             if self.tab_widget.currentWidget().table_widget:
-                dialog = insert_row_Func(self, self.header)
+                dialog = insert_row_Func(self, self.header, self.rows)
                 result = dialog.exec()
                 if result == QDialog.Accepted:
                     row_index = int(dialog.selected_row_index)
@@ -178,6 +192,7 @@ class MainWindow(QMainWindow):
             .table_widget.setHorizontalHeaderItem(cmb+radio_btn, QTableWidgetItem(insert_header))
         for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):
             self.tab_widget.currentWidget().table_widget.setItem(row, cmb+radio_btn, QTableWidgetItem(insert_val))
+        self.data_update()
 
     def do_insert_row(self, row_index, radio_btn, datas):
         try:
@@ -186,6 +201,7 @@ class MainWindow(QMainWindow):
                 for col in range(len(data)):
                     self.tab_widget.currentWidget().table_widget.setItem(
                         row_index + radio_btn + index - 1, col, QTableWidgetItem(data[col]))
+                self.data_update()
         except Exception as e:
             print(e)
 

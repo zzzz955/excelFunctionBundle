@@ -11,14 +11,12 @@ class func_Bundle(QDialog):
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
         self.do_group_by_btn = QPushButton('집계 함수 실행')
-        self.exit_group_by_btn = QPushButton('집계 함수 해제')
         self.do_insert_btn_v = QPushButton('열 일괄 삽입')
         self.do_insert_btn_h = QPushButton('행 일괄 삽입')
         self.exit_dialog_btn = QPushButton('종료')
 
         layout.addLayout(layout2)
         layout2.addWidget(self.do_group_by_btn)
-        layout2.addWidget(self.exit_group_by_btn)
 
         layout.addLayout(layout3)
         layout3.addWidget(self.do_insert_btn_v)
@@ -27,7 +25,6 @@ class func_Bundle(QDialog):
         self.setLayout(layout)
 
         self.do_group_by_btn.clicked.connect(self.con_group_by_dialog)
-        self.exit_group_by_btn.clicked.connect(self.exit_group_by)
         self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
         self.do_insert_btn_h.clicked.connect(self.con_row_insert_dialog)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
@@ -36,15 +33,6 @@ class func_Bundle(QDialog):
             self.table_data = self.main_window.tab_widget.currentWidget().table_widget
         else:
             self.table_data=None
-        self.button_toggle()
-
-    def button_toggle(self):
-        if hasattr(self.main_window.tab_widget.currentWidget(), 'table_widget'):
-            self.do_group_by_btn.setEnabled(True)
-            self.exit_group_by_btn.setEnabled(True)
-        else:
-            self.do_group_by_btn.setEnabled(False)
-            self.exit_group_by_btn.setEnabled(False)
 
     def con_group_by_dialog(self):
         # 집계 관련 다이얼로그 호출 함수
@@ -63,9 +51,6 @@ class func_Bundle(QDialog):
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.insert_row_dialog()
-
-    def exit_group_by(self):
-        self.main_window.exit_group_by()
 
     def exit_dialog(self):
         # 다이얼 로그 종료
@@ -231,11 +216,12 @@ class insert_col_Func(QDialog):
         self.reject()
 
 class insert_row_Func(QDialog):
-    def __init__(self, main_window, header):
+    def __init__(self, main_window, header, rows):
         super().__init__()
         self.setWindowTitle('데이터 삽입')
         self.main_window = main_window
         self.header = header
+        self.rows = rows
         self.setGeometry(self.x(), self.y(), 800, self.height())
 
         layout = QVBoxLayout()
@@ -309,11 +295,13 @@ class insert_row_Func(QDialog):
     def accept_func(self):
         try:
             self.insert_list = []
+            row_index = int(self.lineedit1.text())
+            print(len(self.header))
             if self.table_widget.rowCount() > 0:
-                if self.lineedit1.text():
+                if row_index and 0 < row_index <= self.rows:
                     self.selected_row_index = self.lineedit1.text()
                 else:
-                    QMessageBox.warning(self, '경고', '데이터 삽입 기준 Row를 지정해 주세요.')
+                    QMessageBox.warning(self, '경고', '데이터 삽입 기준 Row 값을 확인해 주세요.')
                     return
                 if self.radio_btn1.isChecked():
                     self.selected_radio_button = 0

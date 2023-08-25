@@ -44,11 +44,6 @@ class Tab1(QWidget):
         group_sorted = group.sort_values(by=cmb2, ascending=False)
         self.df_to_table(group_sorted)
 
-    def exit_group_by(self):
-        # 집계 테이블 원 상태로 복구
-        if self.reserve_table_widget.rowCount() > 0:
-            self.df_to_table(self.df)
-
     def sortTable(self, logicalIndex, order):
         # 각 헤더에 맞게 정렬
         if self.table_widget.rowCount() > 0:
