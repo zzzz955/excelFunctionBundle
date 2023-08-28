@@ -1,5 +1,7 @@
-from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox, QLineEdit, QTableWidget
+from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
+    QMessageBox, QLineEdit, QTableWidget, QListWidget
 from PyQt5.QtGui import QValidator, QIntValidator
+from PyQt5.QtCore import Qt
 
 class func_Bundle(QDialog):
     def __init__(self, main_window):
@@ -196,20 +198,17 @@ class insert_col_Func(QDialog):
         self.cmb1.addItems(header)
 
     def accept_func(self):
-        try:
-            self.selected_combo_index = self.cmb1.currentIndex()
-            self.inserted_header_val = self.lineedit1.text()
-            self.inserted_data_val = self.lineedit2.text()
-            if self.radio_btn1.isChecked():
-                self.selected_radio_button = 0
-            elif self.radio_btn2.isChecked():
-                self.selected_radio_button = 1
-            else:
-                QMessageBox.warning(self, '경고', '데이터 삽입 위치를 선택해 주세요.')
-                return
-            self.accept()
-        except Exception as e:
-            print(e)
+        self.selected_combo_index = self.cmb1.currentIndex()
+        self.inserted_header_val = self.lineedit1.text()
+        self.inserted_data_val = self.lineedit2.text()
+        if self.radio_btn1.isChecked():
+            self.selected_radio_button = 0
+        elif self.radio_btn2.isChecked():
+            self.selected_radio_button = 1
+        else:
+            QMessageBox.warning(self, '경고', '데이터 삽입 위치를 선택해 주세요.')
+            return
+        self.accept()
 
     def exit_dialog(self):
         # 다이얼 로그 종료
@@ -274,57 +273,66 @@ class insert_row_Func(QDialog):
         self.table_widget.resizeColumnsToContents()
 
     def add_table_row(self):
-        try:
-            del_btn = QPushButton('삭제')
-            del_btn.clicked.connect(self.del_table_row)
-            row_index = self.table_widget.rowCount()
-            self.table_widget.insertRow(row_index)
-            self.table_widget.setCellWidget(row_index, 0, del_btn)
-        except Exception as e:
-            print(e)
+        del_btn = QPushButton('삭제')
+        del_btn.clicked.connect(self.del_table_row)
+        row_index = self.table_widget.rowCount()
+        self.table_widget.insertRow(row_index)
+        self.table_widget.setCellWidget(row_index, 0, del_btn)
 
     def del_table_row(self):
-        try:
-            sender = self.sender()
-            if isinstance(sender, QPushButton):
-                index = self.table_widget.indexAt(sender.pos())
-                self.table_widget.removeRow(index.row())
-        except Exception as e:
-            print(e)
+        sender = self.sender()
+        if isinstance(sender, QPushButton):
+            index = self.table_widget.indexAt(sender.pos())
+            self.table_widget.removeRow(index.row())
 
     def accept_func(self):
-        try:
-            self.insert_list = []
-            row_index = int(self.lineedit1.text())
-            print(len(self.header))
-            if self.table_widget.rowCount() > 0:
-                if row_index and 0 < row_index <= self.rows:
-                    self.selected_row_index = self.lineedit1.text()
-                else:
-                    QMessageBox.warning(self, '경고', '데이터 삽입 기준 Row 값을 확인해 주세요.')
-                    return
-                if self.radio_btn1.isChecked():
-                    self.selected_radio_button = 0
-                elif self.radio_btn2.isChecked():
-                    self.selected_radio_button = 1
-                else:
-                    QMessageBox.warning(self, '경고', '데이터 삽입 위치를 선택해 주세요.')
-                    return
-                rows = self.table_widget.rowCount()
-                cols = self.table_widget.columnCount()-1
-                for row in range(rows):
-                    insert_row = []
-                    for col in range(cols):
-                        item = self.table_widget.item(row, col+1)
-                        if item is not None:
-                            insert_row.append(item.text())
-                        else:
-                            insert_row.append("")
-                    self.insert_list.append(insert_row)
-                self.accept()
-        except Exception as e:
-            print(e)
+        self.insert_list = []
+        row_index = int(self.lineedit1.text())
+        if self.table_widget.rowCount() > 0:
+            if row_index and 0 < row_index <= self.rows:
+                self.selected_row_index = self.lineedit1.text()
+            else:
+                QMessageBox.warning(self, '경고', f'데이터 삽입 기준 Row 값을 확인해 주세요. 입력 가능 범위 : 1~{self.rows}')
+                return
+            if self.radio_btn1.isChecked():
+                self.selected_radio_button = 0
+            elif self.radio_btn2.isChecked():
+                self.selected_radio_button = 1
+            else:
+                QMessageBox.warning(self, '경고', '데이터 삽입 위치를 선택해 주세요.')
+                return
+            rows = self.table_widget.rowCount()
+            cols = self.table_widget.columnCount()-1
+            for row in range(rows):
+                insert_row = []
+                for col in range(cols):
+                    item = self.table_widget.item(row, col+1)
+                    if item is not None:
+                        insert_row.append(item.text())
+                    else:
+                        insert_row.append("")
+                self.insert_list.append(insert_row)
+            self.accept()
 
     def exit_dialog(self):
         # 다이얼 로그 종료
         self.reject()
+
+class show_listwidget(QDialog):
+    def __init__(self, main_window):
+        super().__init__(main_window, flags=Qt.Window)
+        self.setGeometry(850,50,300,600)
+        self.setWindowTitle('업로드 파일 목록')
+        self.main_window = main_window
+
+        layout = QVBoxLayout()
+        self.list_widget = QListWidget()
+
+        layout.addWidget(self.list_widget)
+        self.setLayout(layout)
+
+        self.list_widget.doubleClicked.connect(self.change_table)
+
+    def change_table(self):
+        file_path = self.list_widget.currentItem()
+        self.main_window.list_widget_exec(file_path.text())
