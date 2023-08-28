@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import xlsxwriter
 import openpyxl
 
 
@@ -67,7 +68,7 @@ def merge_to_excel_download(load_paths, save_path):
                 while len(sheet_names) != len(set(sheet_names)):
                     increse = lambda x: x + 1
                     n = increse(n)
-                    sheet_names[len(sheet_names) - 1] = excel.sheet_names[i] + f'...{n}'
+                    sheet_names[len(sheet_names) - 1] = excel.sheet_names[i] + f'..{n}'
         for num, df in enumerate(df_list):
             df.to_excel(excel_writer, sheet_name=sheet_names[num], index=False)
         excel_writer.close()
