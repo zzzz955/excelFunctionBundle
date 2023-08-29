@@ -167,7 +167,7 @@ class groupby_Func(QDialog):
         self.reject()
 
 
-class duplicate_Fucn(QDialog):
+class duplicate_Func(QDialog):
     def __init__(self, main_window, header):
         super().__init__()
         self.setWindowTitle('중복 제거 팝업')
@@ -430,16 +430,23 @@ class show_listwidget(QDialog):
 
         layout = QVBoxLayout()
         self.list_widget = QListWidget()
+        self.exit_dialog_btn = QPushButton('종료')
 
         layout.addWidget(self.list_widget)
+        layout.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
 
         self.list_widget.doubleClicked.connect(self.change_table)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
 
     def change_table(self):
         # 리스트 위젯 더블 클릭 시 실행 함수
         file_path = self.list_widget.currentItem()
         self.main_window.list_widget_exec(file_path.text())
+
+    def exit_dialog(self):
+        # 다이얼 로그 종료
+        self.close()
 
 
 class replace_Func(QDialog):

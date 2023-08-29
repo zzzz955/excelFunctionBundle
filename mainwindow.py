@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('엑셀 업무 툴')
-        self.setGeometry(0, 0, 800, self.height())
+        self.setGeometry(0, 0, 800, 800)
         self.layout = QVBoxLayout()
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.layout)
@@ -52,7 +52,8 @@ class MainWindow(QMainWindow):
         self.rows = None
         self.single_file_paths = None
         self.multiple_file_paths = None
-        self.df = None
+        self.tab1_df = None
+        self.tab2_df = None
         self.file_paths = None
         self.modeless_dialog = show_listwidget(self)
 
@@ -70,12 +71,10 @@ class MainWindow(QMainWindow):
 
     def initialize_func(self):
         # 기능 초기화 함수
-        if self.single_file_paths:
-            file_paths = self.single_file_paths.copy()
-            self.single_sheet_excel_file_Conversion(file_paths)
-        elif self.multiple_file_paths:
-            file_paths = self.multiple_file_paths.copy()
-            self.multiple_sheet_excel_file_Conversion(file_paths)
+        if self.tab_widget.currentIndex() == 0 and self.tab1_df:
+            self.df_to_table(self.tab1_df)
+        elif self.tab_widget.currentIndex() == 1 and self.tab2_df:
+            self.df_to_table(self.tab2_df)
         else:
             return
 
@@ -91,7 +90,7 @@ class MainWindow(QMainWindow):
             if file_paths:
                 self.single_file_paths = file_paths
                 if self.tab_widget.currentIndex() == 0:
-                    self.single_sheet_excel_file_Conversion(file_paths)
+                    self.single_sheet_excel_file_conversion(file_paths)
                 elif self.tab_widget.currentIndex() == 1:
                     self.file_paths = file_paths
                     self.modeless_dialog.list_widget.clear()
@@ -99,8 +98,8 @@ class MainWindow(QMainWindow):
                     self.modeless_dialog.show()
         except Exception as e:
             QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 불러 올 수 없습니다. {e}'
-                                          f'\n1. 파일이 열려 있는 상태인지 확인해 주세요.'
-                                          f'\n2. 파일이 올바른 형식인지 확인해 주세요.'
+                                          f'\n1. 파일이 열려 있는 상태 인지 확인해 주세요.'
+                                          f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
                                           f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
                                           f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
@@ -111,7 +110,7 @@ class MainWindow(QMainWindow):
             if file_paths:
                 self.multiple_file_paths = file_paths
                 if self.tab_widget.currentIndex() == 0:
-                    self.multiple_sheet_excel_file_Conversion(file_paths)
+                    self.multiple_sheet_excel_file_conversion(file_paths)
                 elif self.tab_widget.currentIndex() == 1:
                     self.file_paths = file_paths
                     self.modeless_dialog.list_widget.clear()
@@ -119,29 +118,29 @@ class MainWindow(QMainWindow):
                     self.modeless_dialog.show()
         except Exception as e:
             QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 불러 올 수 없습니다. {e}'
-                                          f'\n1. 파일이 열려 있는 상태인지 확인해 주세요.'
-                                          f'\n2. 파일이 올바른 형식인지 확인해 주세요.'
+                                          f'\n1. 파일이 열려 있는 상태 인지 확인해 주세요.'
+                                          f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
                                           f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
                                           f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
-
-    def single_sheet_excel_file_Conversion(self, file_paths):
+    def single_sheet_excel_file_conversion(self, file_paths):
         # 엑셀 파일 병합
         df = dataframes.concat_singlesheet_excelfiles(file_paths)
         self.df_to_table(df)
-        self.df = df
+        self.tab1_df = df
 
-    def multiple_sheet_excel_file_Conversion(self, file_paths):
+    def multiple_sheet_excel_file_conversion(self, file_paths):
         # 엑셀 파일 병합
         df = dataframes.concat_multiplesheets_excelfiles(file_paths)
         self.df_to_table(df)
-        self.df = df
+        self.tab1_df = df
 
     def list_widget_exec(self, file_path):
         # 탭2 파일 목록 노출
         self.tab_widget.setCurrentIndex(1)
         file_path, current_sheet_name = self.tab2.combobox1_add_items(file_path)
         df = dataframes.file_change(file_path, current_sheet_name)
+        self.tab2_df = df
         self.df_to_table(df)
 
     def df_to_table(self, df):
@@ -194,7 +193,7 @@ class MainWindow(QMainWindow):
 
     def duplicate_dialog(self):
         # 중복 제거 다이얼 로그 호출
-        dialog = duplicate_Fucn(self, self.header)
+        dialog = duplicate_Func(self, self.header)
         result = dialog.exec()
         if result == QDialog.Accepted:
             cmb1 = dialog.selected_combo_item
@@ -239,13 +238,21 @@ class MainWindow(QMainWindow):
 
     def do_group_by(self, cmb1, cmb2, radio_btn1):
         # 다이얼 로그 값을 받아와 집계 기능 실행
-        group_sorted = dataframes.group_by_data(self.df, cmb1, cmb2, radio_btn1)
-        self.df_to_table(group_sorted)
+        if self.tab_widget.currentIndex() == 0:
+            group_sorted = dataframes.group_by_data(self.tab1_df, cmb1, cmb2, radio_btn1)
+            self.df_to_table(group_sorted)
+        if self.tab_widget.currentIndex() == 1:
+            group_sorted = dataframes.group_by_data(self.tab2_df, cmb1, cmb2, radio_btn1)
+            self.df_to_table(group_sorted)
 
     def do_duplicate(self, cmb1, radio_btn1):
         # 다이얼 로그 값을 받아와 중복 제거 기능 실행
-        duplicated = dataframes.duplicate_data(self.df, cmb1, radio_btn1)
-        self.df_to_table(duplicated)
+        if self.tab_widget.currentIndex() == 0:
+            duplicated = dataframes.duplicate_data(self.tab1_df, cmb1, radio_btn1)
+            self.df_to_table(duplicated)
+        if self.tab_widget.currentIndex() == 1:
+            duplicated = dataframes.duplicate_data(self.tab2_df, cmb1, radio_btn1)
+            self.df_to_table(duplicated)
 
     def do_insert_col(self, cmb, radio_btn, insert_header, insert_val):
         # 다이얼 로그 값을 받아와 열 삽입 기능 실행
@@ -286,7 +293,7 @@ class MainWindow(QMainWindow):
             if not save_file_path:
                 return
             if self.tab_widget.currentIndex() == 0:
-                dataframes.df_to_excel(self.df, save_file_path)
+                dataframes.df_to_excel(self.tab1_df, save_file_path)
             elif self.tab_widget.currentIndex() == 1:
                 dataframes.merge_to_excel_download(self.file_paths, save_file_path)
             self.open_filepath(save_file_path)

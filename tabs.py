@@ -96,4 +96,5 @@ class Tab2(QWidget):
         # 콤보 박스 값 변경 시 테이블 최신화
         current_sheet_name = self.combobox1.currentText()
         df = dataframes.file_change(self.file_path, current_sheet_name)
+        self.main_window.tab2_df = df
         self.main_window.df_to_table(df)
