@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
-    QMessageBox, QLineEdit, QTableWidget, QListWidget
+    QMessageBox, QLineEdit, QTableWidget, QListWidget, QGridLayout
 from PyQt5.QtGui import QValidator, QIntValidator
 from PyQt5.QtCore import Qt
 
@@ -10,8 +10,7 @@ class func_Bundle(QDialog):
         self.main_window = main_window
 
         layout = QVBoxLayout()
-        layout2 = QHBoxLayout()
-        layout3 = QHBoxLayout()
+        layout2 = QGridLayout()
         self.do_group_by_btn = QPushButton('집계 함수 실행')
         self.do_duplicate_btn = QPushButton('중복 제거')
         self.do_insert_btn_v = QPushButton('열 일괄 삽입')
@@ -19,12 +18,10 @@ class func_Bundle(QDialog):
         self.exit_dialog_btn = QPushButton('종료')
 
         layout.addLayout(layout2)
-        layout2.addWidget(self.do_group_by_btn)
-        layout2.addWidget(self.do_duplicate_btn)
-
-        layout.addLayout(layout3)
-        layout3.addWidget(self.do_insert_btn_v)
-        layout3.addWidget(self.do_insert_btn_h)
+        layout2.addWidget(self.do_group_by_btn, 0, 0)
+        layout2.addWidget(self.do_duplicate_btn, 0, 1)
+        layout2.addWidget(self.do_insert_btn_v, 1, 0)
+        layout2.addWidget(self.do_insert_btn_h, 1, 1)
         layout.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
 
