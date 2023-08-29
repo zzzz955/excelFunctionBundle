@@ -8,7 +8,8 @@ class func_Bundle(QDialog):
         super().__init__()
         self.setWindowTitle('기능 모음')
         self.main_window = main_window
-
+        
+        # 위젯 추가
         layout = QVBoxLayout()
         layout2 = QGridLayout()
         self.do_group_by_btn = QPushButton('집계 함수 실행')
@@ -17,6 +18,7 @@ class func_Bundle(QDialog):
         self.do_insert_btn_h = QPushButton('행 일괄 삽입')
         self.exit_dialog_btn = QPushButton('종료')
 
+        # 레이아웃 지정
         layout.addLayout(layout2)
         layout2.addWidget(self.do_group_by_btn, 0, 0)
         layout2.addWidget(self.do_duplicate_btn, 0, 1)
@@ -24,38 +26,40 @@ class func_Bundle(QDialog):
         layout2.addWidget(self.do_insert_btn_h, 1, 1)
         layout.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
-
+        
+        # 시그널 추가
         self.do_group_by_btn.clicked.connect(self.con_group_by_dialog)
         self.do_duplicate_btn.clicked.connect(self.con_duplicate_dialog)
         self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
         self.do_insert_btn_h.clicked.connect(self.con_row_insert_dialog)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
-
+        
+        # 데이터 확인
         if hasattr(self.main_window.tab_widget.currentWidget(), 'table_widget'):
             self.table_data = self.main_window.tab_widget.currentWidget().table_widget
         else:
-            self.table_data=None
+            self.table_data = None
 
     def con_group_by_dialog(self):
-        # 집계 관련 다이얼로그 호출 함수
+        # 집계 관련 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.group_by_dialog()
 
     def con_duplicate_dialog(self):
-        # 집계 관련 다이얼로그 호출 함수
+        # 중복 제거 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.duplicate_dialog()
 
     def con_col_insert_dialog(self):
-        # 열 삽입 관련 다이얼로그 호출 함수
+        # 열 삽입 관련 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.insert_col_dialog()
 
     def con_row_insert_dialog(self):
-        # 행 삽입 관련 다이얼로그 호출 함수
+        # 행 삽입 관련 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.insert_row_dialog()
@@ -70,6 +74,7 @@ class groupby_Func(QDialog):
         self.setWindowTitle('집계 팝업')
         self.main_window = main_window
 
+        # 위젯 추가
         layout = QVBoxLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
@@ -87,6 +92,7 @@ class groupby_Func(QDialog):
         self.accept_btn = QPushButton('집계 실행')
         self.exit_dialog_btn = QPushButton('취소')
 
+        # 레이아웃 지정
         layout.addLayout(layout2)
         layout2.addWidget(self.label1)
         layout2.addWidget(self.cmb1)
@@ -106,12 +112,13 @@ class groupby_Func(QDialog):
         layout4.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
 
+        # 시그널 추가
         self.accept_btn.clicked.connect(self.accept_func)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
 
+        # 변수 초기화
         self.header = header
         self.cmb_add_item()
-
         self.selected_combo_item = None
         self.selected_combo_item2 = None
         self.selected_radio_button = None
@@ -153,6 +160,7 @@ class duplicate_Fucn(QDialog):
         self.setWindowTitle('중복 제거 팝업')
         self.main_window = main_window
 
+        # 위젯 추가
         layout = QVBoxLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
@@ -165,6 +173,7 @@ class duplicate_Fucn(QDialog):
         self.accept_btn = QPushButton('중복 제거')
         self.exit_dialog_btn = QPushButton('취소')
 
+        # 레이아웃 지정
         layout.addLayout(layout2)
         layout2.addWidget(self.label1)
         layout2.addWidget(self.cmb1)
@@ -179,12 +188,13 @@ class duplicate_Fucn(QDialog):
         layout4.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
 
+        # 시그널 추가
         self.accept_btn.clicked.connect(self.accept_func)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
 
+        # 변수 초기화
         self.header = header
         self.cmb1.addItems(self.header)
-
         self.selected_combo_item = None
         self.selected_radio_button = None
 
@@ -211,6 +221,7 @@ class insert_col_Func(QDialog):
         self.main_window = main_window
         self.header = header
 
+        # 위젯 추가
         layout = QVBoxLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
@@ -229,6 +240,7 @@ class insert_col_Func(QDialog):
         self.accept_btn = QPushButton('삽입')
         self.exit_dialog_btn = QPushButton('취소')
 
+        # 레이아웃 지정
         layout.addLayout(layout2)
         layout2.addWidget(self.label1)
         layout2.addWidget(self.cmb1)
@@ -251,9 +263,11 @@ class insert_col_Func(QDialog):
         layout6.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
 
+        # 시그널 추가
         self.accept_btn.clicked.connect(self.accept_func)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
 
+        # 변수 초기화
         self.selected_combo_index = None
         self.selected_radio_button = None
         self.inserted_header_val = None
@@ -261,6 +275,7 @@ class insert_col_Func(QDialog):
         self.cmb1.addItems(header)
 
     def accept_func(self):
+        # 다이얼 로그 값 전달
         self.selected_combo_index = self.cmb1.currentIndex()
         self.inserted_header_val = self.lineedit1.text()
         self.inserted_data_val = self.lineedit2.text()
@@ -286,6 +301,7 @@ class insert_row_Func(QDialog):
         self.rows = rows
         self.setGeometry(self.x(), self.y(), 800, self.height())
 
+        # 위젯 추가
         layout = QVBoxLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
@@ -300,6 +316,7 @@ class insert_row_Func(QDialog):
         self.accept_btn = QPushButton('삽입')
         self.exit_dialog_btn = QPushButton('취소')
 
+        # 레이아웃 지정
         layout.addLayout(layout2)
         layout2.addWidget(self.label1)
         layout2.addWidget(self.lineedit1)
@@ -317,18 +334,22 @@ class insert_row_Func(QDialog):
         layout4.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
 
+        # lineedit 입력 값 제한
         self.lineedit1.setValidator(QIntValidator())
 
+        # 시그널 추가
         self.row_add_btn.clicked.connect(self.add_table_row)
         self.accept_btn.clicked.connect(self.accept_func)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
 
+        # 변수 초기화
         self.selected_row_index = None
         self.selected_radio_button = None
         self.insert_list = []
         self.set_table()
 
     def set_table(self):
+        # row 추가용 임시 테이블 초기화
         new_header = self.header.copy()
         new_header.insert(0, '삭제')
         self.table_widget.setColumnCount(len(new_header))
@@ -336,6 +357,7 @@ class insert_row_Func(QDialog):
         self.table_widget.resizeColumnsToContents()
 
     def add_table_row(self):
+        # 임시 테이블 row 추가
         del_btn = QPushButton('삭제')
         del_btn.clicked.connect(self.del_table_row)
         row_index = self.table_widget.rowCount()
@@ -343,12 +365,14 @@ class insert_row_Func(QDialog):
         self.table_widget.setCellWidget(row_index, 0, del_btn)
 
     def del_table_row(self):
+        # 임시 테이블 row 삭제
         sender = self.sender()
         if isinstance(sender, QPushButton):
             index = self.table_widget.indexAt(sender.pos())
             self.table_widget.removeRow(index.row())
 
     def accept_func(self):
+        # 다이얼 로그 값 전달
         self.insert_list = []
         row_index = int(self.lineedit1.text())
         if self.table_widget.rowCount() > 0:
@@ -397,6 +421,7 @@ class show_listwidget(QDialog):
         self.list_widget.doubleClicked.connect(self.change_table)
 
     def change_table(self):
+        # 리스트 위젯 더블 클릭 시 실행 함수
         file_path = self.list_widget.currentItem()
         self.main_window.list_widget_exec(file_path.text())
 

@@ -8,16 +8,18 @@ class Tab1(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
+
+        # 위젯 추가
         self.layout = QVBoxLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
-
         self.label1 = QLabel('rowCount : 0')
         self.label2 = QLabel('columnCount : 0')
         self.table_widget = QTableWidget()
         self.excel_download_btn = QPushButton('다운로드(업로드 파일 기준)')
         self.excel_download_btn2 = QPushButton('다운로드(테이블 데이터 기준)')
 
+        # 레이아웃 지정
         self.layout.addLayout(layout2)
         layout2.addWidget(self.label1)
         layout2.addWidget(self.label2)
@@ -27,6 +29,7 @@ class Tab1(QWidget):
         layout3.addWidget(self.excel_download_btn2)
         self.setLayout(self.layout)
 
+        # 시그널 추가
         self.excel_download_btn.clicked.connect(self.main_window.dataframe_to_excel)
         self.excel_download_btn2.clicked.connect(self.main_window.table_to_excel)
         self.table_widget.horizontalHeader().sortIndicatorChanged.connect(self.main_window.sort_table)
@@ -35,11 +38,12 @@ class Tab2(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
+
+        # 위젯 추가
         self.layout = QVBoxLayout()
         layout1 = QHBoxLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
-
         self.t2label1 = QLabel('<b>파일 정보 : </b>')
         self.file_list_btn = QPushButton('파일 리스트')
         self.t2label2 = QLabel('<b>시트 정보 : </b>')
@@ -50,6 +54,7 @@ class Tab2(QWidget):
         self.excel_download_btn = QPushButton('다운로드(업로드 파일 기준)')
         self.excel_download_btn2 = QPushButton('다운로드(테이블 데이터 기준)')
 
+        # 레이아웃 지정
         self.layout.addLayout(layout1)
         layout1.addWidget(self.t2label1)
         layout1.addWidget(self.file_list_btn)
@@ -66,27 +71,29 @@ class Tab2(QWidget):
         layout3.addWidget(self.excel_download_btn2)
         self.setLayout(self.layout)
 
+        # 시그널 추가
         self.file_list_btn.clicked.connect(self.main_window.show_listwidget_exec)
         self.excel_download_btn.clicked.connect(self.main_window.dataframe_to_excel)
         self.excel_download_btn2.clicked.connect(self.main_window.table_to_excel)
         self.table_widget.horizontalHeader().sortIndicatorChanged.connect(self.main_window.sort_table)
+
+        # 변수 초기화
         self.file_path = None
 
     def combobox1_add_items(self, file_path):
-        try:
-            if self.combobox1.count() > 0:
-                self.combobox1.currentTextChanged.disconnect(self.combobox_value_changed)
-                self.combobox1.clear()
-            self.file_path = file_path
-            sheet_names = dataframes.return_sheets(file_path)
-            self.combobox1.addItems(sheet_names)
-            current_sheet_name = self.combobox1.currentText()
-            self.combobox1.currentTextChanged.connect(self.combobox_value_changed)
-            return file_path, current_sheet_name
-        except Exception as e:
-            print(e)
+        # 콤보 박스 값 추가 및 시그널 연결
+        if self.combobox1.count() > 0:
+            self.combobox1.currentTextChanged.disconnect(self.combobox_value_changed)
+            self.combobox1.clear()
+        self.file_path = file_path
+        sheet_names = dataframes.return_sheets(file_path)
+        self.combobox1.addItems(sheet_names)
+        current_sheet_name = self.combobox1.currentText()
+        self.combobox1.currentTextChanged.connect(self.combobox_value_changed)
+        return file_path, current_sheet_name
 
     def combobox_value_changed(self):
+        # 콤보 박스 값 변경 시 테이블 최신화
         current_sheet_name = self.combobox1.currentText()
         df = dataframes.file_change(self.file_path, current_sheet_name)
         self.main_window.df_to_table(df)

@@ -15,6 +15,7 @@ class MainWindow(QMainWindow):
         self.central_widget.setLayout(self.layout)
         self.setCentralWidget(self.central_widget)
 
+        # 위젯 추가
         layout2 = QHBoxLayout()
         self.tab_widget = QTabWidget()
         self.single_sheet_excel_upload_btn = QPushButton('엑셀 파일 업로드(단일 시트)')
@@ -23,6 +24,7 @@ class MainWindow(QMainWindow):
         self.initialize_func_button = QPushButton('기능 초기화')
         self.close_button = QPushButton('종료')
 
+        # 레이아웃 지정
         self.layout.addLayout(layout2)
         self.layout.addWidget(self.tab_widget)
         layout2.addWidget(self.single_sheet_excel_upload_btn)
@@ -31,6 +33,7 @@ class MainWindow(QMainWindow):
         layout2.addWidget(self.initialize_func_button)
         self.layout.addWidget(self.close_button)
 
+        # 시그널 추가
         self.single_sheet_excel_upload_btn.clicked.connect(self.single_sheet_excel_file_upload)
         self.multiple_sheet_excel_upload_btn.clicked.connect(self.multiple_sheet_excel_file_upload)
         self.func_button.clicked.connect(self.func_Bundle_exec)
@@ -43,6 +46,8 @@ class MainWindow(QMainWindow):
         self.tab2 = Tab2(self)
         self.tab_widget.addTab(self.tab1, '데이터 병합본')
         self.tab_widget.addTab(self.tab2, '시트별 구분')
+
+        # 변수 초기화
         self.header = []
         self.rows = None
         self.single_file_paths = None
@@ -52,6 +57,7 @@ class MainWindow(QMainWindow):
         self.modeless_dialog = show_listwidget(self)
 
     def data_update(self):
+        # 데이터 최신화 함수
         self.rows = self.tab_widget.currentWidget().table_widget.rowCount()
         self.header = []
         for column in range(self.tab_widget.currentWidget().table_widget.columnCount()):
@@ -63,6 +69,7 @@ class MainWindow(QMainWindow):
             f'columnCount : {str(self.tab_widget.currentWidget().table_widget.columnCount())}')
 
     def initialize_func(self):
+        # 기능 초기화 함수
         if self.single_file_paths:
             file_paths = self.single_file_paths.copy()
             self.single_sheet_excel_file_Conversion(file_paths)
@@ -73,11 +80,12 @@ class MainWindow(QMainWindow):
             return
 
     def sort_table(self, logical_index, order):
-        # 각 헤더에 맞게 정렬
+        # 테이블 위젯 정렬 함수
         if self.tab_widget.currentWidget().table_widget.rowCount() > 0:
             self.tab_widget.currentWidget().table_widget.sortItems(logical_index, order)
 
     def single_sheet_excel_file_upload(self):
+        # 단일 시트 엑셀 파일 업로드
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
             self.single_file_paths = file_paths
@@ -90,6 +98,7 @@ class MainWindow(QMainWindow):
                 self.modeless_dialog.show()
 
     def multiple_sheet_excel_file_upload(self):
+        # 다중 시트 엑셀 파일 업로드
         file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
         if file_paths:
             self.multiple_file_paths = file_paths
@@ -102,24 +111,26 @@ class MainWindow(QMainWindow):
                 self.modeless_dialog.show()
 
     def single_sheet_excel_file_Conversion(self, file_paths):
-        # 엑셀 업로드 함수
+        # 엑셀 파일 병합
         df = dataframes.concat_singlesheet_excelfiles(file_paths)
         self.df_to_table(df)
         self.df = df
 
     def multiple_sheet_excel_file_Conversion(self, file_paths):
+        # 엑셀 파일 병합
         df = dataframes.concat_multiplesheets_excelfiles(file_paths)
         self.df_to_table(df)
         self.df = df
 
     def list_widget_exec(self, file_path):
+        # 탭2 파일 목록 노출
         self.tab_widget.setCurrentIndex(1)
         file_path, current_sheet_name = self.tab2.combobox1_add_items(file_path)
         df = dataframes.file_change(file_path, current_sheet_name)
         self.df_to_table(df)
 
     def df_to_table(self, df):
-        # 데이터 프레임 테이블화
+        # 데이터 프레임 테이블 위젯 추가
         self.header = []
         self.tab_widget.currentWidget().table_widget.clear()
         self.tab_widget.currentWidget().table_widget.setRowCount(len(df))
@@ -131,7 +142,6 @@ class MainWindow(QMainWindow):
                 item = str(df.iloc[r, c])
                 self.tab_widget.currentWidget().table_widget.setItem(r, c, QTableWidgetItem(item))
         self.tab_widget.currentWidget().table_widget.resizeColumnsToContents()
-        # 행 및 열 개수 노출
         self.tab_widget.currentWidget().label1.setText(f'rowCount : {str(self.tab_widget.currentWidget().table_widget.rowCount())}')
         self.tab_widget.currentWidget().label2.setText(f'columnCount : {str(self.tab_widget.currentWidget().table_widget.columnCount())}')
         for column in range(self.tab_widget.currentWidget().table_widget.columnCount()):
@@ -140,32 +150,35 @@ class MainWindow(QMainWindow):
         self.rows = self.tab_widget.currentWidget().table_widget.rowCount()
 
     def func_Bundle_exec(self):
+        # 기능 다이얼 로그 호출
         dialog = func_Bundle(self)
         dialog.exec()
 
     def show_listwidget_exec(self):
+        # 리스트 위젯 다이얼 로그 호출
         self.modeless_dialog.show()
 
     def tab_changed(self):
+        # 탭 변경 시 헤더 데이터 변경
         self.header = []
         for column in range(self.tab_widget.currentWidget().table_widget.columnCount()):
             header_item = self.tab_widget.currentWidget().table_widget.horizontalHeaderItem(column)
             self.header.append(header_item.text())
 
     def group_by_dialog(self):
+        # 집계 함수 다이얼 로그 호출
         dialog = groupby_Func(self, self.header)
         result = dialog.exec()
-        # 다이얼 로그로 부터 값 가져오기
         if result == QDialog.Accepted:
             cmb1 = dialog.selected_combo_item
             cmb2 = dialog.selected_combo_item2
             radio_btn1 = dialog.selected_radio_button
-            # 탭 함수 호출
             self.do_group_by(cmb1, cmb2, radio_btn1)
         elif result == QDialog.Rejected:
             return
 
     def duplicate_dialog(self):
+        # 중복 제거 다이얼 로그 호출
         dialog = duplicate_Fucn(self, self.header)
         result = dialog.exec()
         if result == QDialog.Accepted:
@@ -177,6 +190,7 @@ class MainWindow(QMainWindow):
             return
 
     def insert_col_dialog(self):
+        # 열 삽입 다이얼 로그 호출
         if self.tab_widget.currentWidget().table_widget:
             dialog = insert_col_Func(self, self.header)
             result = dialog.exec()
@@ -190,6 +204,7 @@ class MainWindow(QMainWindow):
                 return
 
     def insert_row_dialog(self):
+        # 행 삽입 다이얼 로그 호출
         if self.tab_widget.currentWidget().table_widget:
             dialog = insert_row_Func(self, self.header, self.rows)
             result = dialog.exec()
@@ -202,16 +217,17 @@ class MainWindow(QMainWindow):
                 return
 
     def do_group_by(self, cmb1, cmb2, radio_btn1):
-        # 다이얼 로그 값을 받아와 GROUP BY 기능 실행
+        # 다이얼 로그 값을 받아와 집계 기능 실행
         group_sorted = dataframes.group_by_data(self.df, cmb1, cmb2, radio_btn1)
         self.df_to_table(group_sorted)
 
     def do_duplicate(self, cmb1, radio_btn1):
-        # 다이얼 로그 값을 받아와 GROUP BY 기능 실행
+        # 다이얼 로그 값을 받아와 중복 제거 기능 실행
         duplicated = dataframes.duplicate_data(self.df, cmb1, radio_btn1)
         self.df_to_table(duplicated)
 
     def do_insert_col(self, cmb, radio_btn, insert_header, insert_val):
+        # 다이얼 로그 값을 받아와 열 삽입 기능 실행
         self.tab_widget.currentWidget()\
             .table_widget.insertColumn(cmb+radio_btn)
         self.tab_widget.currentWidget()\
@@ -221,6 +237,7 @@ class MainWindow(QMainWindow):
         self.data_update()
 
     def do_insert_row(self, row_index, radio_btn, datas):
+        # 다이얼 로그 값을 받아와 행 삽입 기능 실행
         for index, data in enumerate(datas):
             self.tab_widget.currentWidget().table_widget.insertRow(row_index + radio_btn + index - 1)
             for col in range(len(data)):
@@ -229,6 +246,7 @@ class MainWindow(QMainWindow):
             self.data_update()
 
     def dataframe_to_excel(self):
+        # 데이터 프레임 기준 엑셀 파일 추출
         if self.tab_widget.currentWidget().table_widget.rowCount() > 0:
             save_file_path, _ = QFileDialog.getSaveFileName(self, '파일 선택', '', 'Excel File(*.xlsx)')
             if not save_file_path:
@@ -240,6 +258,7 @@ class MainWindow(QMainWindow):
             self.open_filepath(save_file_path)
 
     def table_to_excel(self):
+        # 테이블 데이터 기준 엑셀 파일 추출
         try:
             # 테이블 데이터프레임화 및 엑셀 파일 저장
             if self.tab_widget.currentWidget().table_widget.rowCount() > 0:
@@ -263,6 +282,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, '경고', f'엑셀 파일을 저장할 수 없습니다. 해당 파일이 열려 있는 상태가 아닌지 확인해 보세요 {e}')
 
     def open_filepath(self, file_path):
+        # 저장 후 파일 열기 기능
         result = QMessageBox.question(self, '정보', '엑셀 파일 생성 완료, 생성한 파일을 여시겠습니까?',
                                       QMessageBox.Ok | QMessageBox.No,
                                       QMessageBox.Ok)
