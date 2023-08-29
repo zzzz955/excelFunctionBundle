@@ -86,29 +86,44 @@ class MainWindow(QMainWindow):
 
     def single_sheet_excel_file_upload(self):
         # 단일 시트 엑셀 파일 업로드
-        file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
-        if file_paths:
-            self.single_file_paths = file_paths
-            if self.tab_widget.currentIndex() == 0:
-                self.single_sheet_excel_file_Conversion(file_paths)
-            elif self.tab_widget.currentIndex() == 1:
-                self.file_paths = file_paths
-                self.modeless_dialog.list_widget.clear()
-                self.modeless_dialog.list_widget.addItems(file_paths)
-                self.modeless_dialog.show()
+        try:
+            file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
+            if file_paths:
+                self.single_file_paths = file_paths
+                if self.tab_widget.currentIndex() == 0:
+                    self.single_sheet_excel_file_Conversion(file_paths)
+                elif self.tab_widget.currentIndex() == 1:
+                    self.file_paths = file_paths
+                    self.modeless_dialog.list_widget.clear()
+                    self.modeless_dialog.list_widget.addItems(file_paths)
+                    self.modeless_dialog.show()
+        except Exception as e:
+            QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 불러 올 수 없습니다. {e}'
+                                          f'\n1. 파일이 열려 있는 상태인지 확인해 주세요.'
+                                          f'\n2. 파일이 올바른 형식인지 확인해 주세요.'
+                                          f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                          f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def multiple_sheet_excel_file_upload(self):
         # 다중 시트 엑셀 파일 업로드
-        file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
-        if file_paths:
-            self.multiple_file_paths = file_paths
-            if self.tab_widget.currentIndex() == 0:
-                self.multiple_sheet_excel_file_Conversion(file_paths)
-            elif self.tab_widget.currentIndex() == 1:
-                self.file_paths = file_paths
-                self.modeless_dialog.list_widget.clear()
-                self.modeless_dialog.list_widget.addItems(file_paths)
-                self.modeless_dialog.show()
+        try:
+            file_paths, _ = QFileDialog.getOpenFileNames(self, '파일 선택', '', 'Excel Files(*.xlsx)')
+            if file_paths:
+                self.multiple_file_paths = file_paths
+                if self.tab_widget.currentIndex() == 0:
+                    self.multiple_sheet_excel_file_Conversion(file_paths)
+                elif self.tab_widget.currentIndex() == 1:
+                    self.file_paths = file_paths
+                    self.modeless_dialog.list_widget.clear()
+                    self.modeless_dialog.list_widget.addItems(file_paths)
+                    self.modeless_dialog.show()
+        except Exception as e:
+            QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 불러 올 수 없습니다. {e}'
+                                          f'\n1. 파일이 열려 있는 상태인지 확인해 주세요.'
+                                          f'\n2. 파일이 올바른 형식인지 확인해 주세요.'
+                                          f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                          f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
+
 
     def single_sheet_excel_file_Conversion(self, file_paths):
         # 엑셀 파일 병합
@@ -216,6 +231,12 @@ class MainWindow(QMainWindow):
             elif result == QDialog.Rejected:
                 return
 
+    def replace_dialog(self):
+        # 행 삽입 다이얼 로그 호출
+        if self.tab_widget.currentWidget().table_widget:
+            dialog = replace_Func(self)
+            dialog.show()
+
     def do_group_by(self, cmb1, cmb2, radio_btn1):
         # 다이얼 로그 값을 받아와 집계 기능 실행
         group_sorted = dataframes.group_by_data(self.df, cmb1, cmb2, radio_btn1)
@@ -244,6 +265,19 @@ class MainWindow(QMainWindow):
                 self.tab_widget.currentWidget().table_widget.setItem(
                     row_index + radio_btn + index - 1, col, QTableWidgetItem(data[col]))
             self.data_update()
+
+    def do_replace(self, find_text, replace_text, if_exact):
+        for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):
+            for col in range(self.tab_widget.currentWidget().table_widget.columnCount()):
+                item = self.tab_widget.currentWidget().table_widget.item(row, col)
+                if item:
+                    text = item.text()
+                    if find_text == text:
+                        text = replace_text
+                        item.setText(text)
+                    elif not if_exact:
+                        new_text = re.sub(find_text, replace_text, text)
+                        item.setText(new_text)
 
     def dataframe_to_excel(self):
         # 데이터 프레임 기준 엑셀 파일 추출

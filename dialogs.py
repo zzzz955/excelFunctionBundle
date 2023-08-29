@@ -1,7 +1,9 @@
+import re
 from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
-    QMessageBox, QLineEdit, QTableWidget, QListWidget, QGridLayout
+    QMessageBox, QLineEdit, QTableWidget, QListWidget, QGridLayout, QCheckBox
 from PyQt5.QtGui import QValidator, QIntValidator
 from PyQt5.QtCore import Qt
+
 
 class func_Bundle(QDialog):
     def __init__(self, main_window):
@@ -16,6 +18,7 @@ class func_Bundle(QDialog):
         self.do_duplicate_btn = QPushButton('중복 제거')
         self.do_insert_btn_v = QPushButton('열 일괄 삽입')
         self.do_insert_btn_h = QPushButton('행 일괄 삽입')
+        self.do_replace_btn = QPushButton('찾아 바꾸기')
         self.exit_dialog_btn = QPushButton('종료')
 
         # 레이아웃 지정
@@ -24,6 +27,7 @@ class func_Bundle(QDialog):
         layout2.addWidget(self.do_duplicate_btn, 0, 1)
         layout2.addWidget(self.do_insert_btn_v, 1, 0)
         layout2.addWidget(self.do_insert_btn_h, 1, 1)
+        layout2.addWidget(self.do_replace_btn, 2, 0)
         layout.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
         
@@ -32,6 +36,7 @@ class func_Bundle(QDialog):
         self.do_duplicate_btn.clicked.connect(self.con_duplicate_dialog)
         self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
         self.do_insert_btn_h.clicked.connect(self.con_row_insert_dialog)
+        self.do_replace_btn.clicked.connect(self.con_replace_dialog)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
         
         # 데이터 확인
@@ -64,9 +69,16 @@ class func_Bundle(QDialog):
             self.accept()
             self.main_window.insert_row_dialog()
 
+    def con_replace_dialog(self):
+        # 행 삽입 관련 다이얼 로그 호출 함수
+        if self.table_data.rowCount() > 0:
+            self.accept()
+            self.main_window.replace_dialog()
+
     def exit_dialog(self):
         # 다이얼 로그 종료
         self.reject()
+
 
 class groupby_Func(QDialog):
     def __init__(self, main_window, header):
@@ -154,6 +166,7 @@ class groupby_Func(QDialog):
         # 다이얼 로그 종료
         self.reject()
 
+
 class duplicate_Fucn(QDialog):
     def __init__(self, main_window, header):
         super().__init__()
@@ -213,6 +226,7 @@ class duplicate_Fucn(QDialog):
     def exit_dialog(self):
         # 다이얼 로그 종료
         self.reject()
+
 
 class insert_col_Func(QDialog):
     def __init__(self, main_window, header):
@@ -291,6 +305,7 @@ class insert_col_Func(QDialog):
     def exit_dialog(self):
         # 다이얼 로그 종료
         self.reject()
+
 
 class insert_row_Func(QDialog):
     def __init__(self, main_window, header, rows):
@@ -405,6 +420,7 @@ class insert_row_Func(QDialog):
         # 다이얼 로그 종료
         self.reject()
 
+
 class show_listwidget(QDialog):
     def __init__(self, main_window):
         super().__init__(main_window, flags=Qt.Window)
@@ -425,3 +441,55 @@ class show_listwidget(QDialog):
         file_path = self.list_widget.currentItem()
         self.main_window.list_widget_exec(file_path.text())
 
+
+class replace_Func(QDialog):
+    def __init__(self, main_window):
+        super().__init__(main_window, flags=Qt.Window)
+        self.setGeometry(850, 50, self.width(), self.height())
+        self.setWindowTitle('문자열 변환')
+        self.main_window = main_window
+
+        # 위젯 추가
+        layout = QVBoxLayout()
+        layout2 = QHBoxLayout()
+        layout3 = QHBoxLayout()
+        self.label1 = QLabel('찾을 문구 : ')
+        self.lineedit1 = QLineEdit()
+        self.label2 = QLabel('변환할 문구 : ')
+        self.lineedit2 = QLineEdit()
+        self.label3 = QLabel('정확히 일치 여부 : ')
+        self.checkbox1 = QCheckBox()
+        self.accept_btn = QPushButton('변환')
+        self.exit_dialog_btn = QPushButton('취소')
+
+        # 레이아웃 지정
+        layout.addLayout(layout2)
+        layout2.addWidget(self.label1)
+        layout2.addWidget(self.lineedit1)
+        layout2.addWidget(self.label2)
+        layout2.addWidget(self.lineedit2)
+        layout2.addWidget(self.label3)
+        layout2.addWidget(self.checkbox1)
+
+        layout.addLayout(layout3)
+        layout3.addWidget(self.accept_btn)
+        layout3.addWidget(self.exit_dialog_btn)
+        self.setLayout(layout)
+
+        # 시그널 추가
+        self.accept_btn.clicked.connect(self.accept_func)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
+
+    def accept_func(self):
+        # 다이얼 로그 값 전달
+        fine_text = self.lineedit1.text()
+        replace_text = self.lineedit2.text()
+        if self.checkbox1.isChecked():
+            checkbox_value = True
+        else:
+            checkbox_value = False
+        self.main_window.do_replace(fine_text, replace_text, checkbox_value)
+
+    def exit_dialog(self):
+        # 다이얼 로그 종료
+        self.close()
