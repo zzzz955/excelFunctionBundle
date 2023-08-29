@@ -1,4 +1,5 @@
 import sys
+import pandas as pd
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QTableWidget, QTableWidgetItem, QFileDialog
 from qt_material import apply_stylesheet
 from tabs import *
@@ -16,8 +17,8 @@ class MainWindow(QMainWindow):
 
         layout2 = QHBoxLayout()
         self.tab_widget = QTabWidget()
-        self.single_sheet_excel_upload_btn = QPushButton('단일 시트 엑셀 파일 업로드')
-        self.multiple_sheet_excel_upload_btn = QPushButton('다중 시트 엑셀 파일 업로드')
+        self.single_sheet_excel_upload_btn = QPushButton('엑셀 파일 업로드(단일 시트)')
+        self.multiple_sheet_excel_upload_btn = QPushButton('엑셀 파일 업로드(다중 시트)')
         self.func_button = QPushButton('기능')
         self.initialize_func_button = QPushButton('기능 초기화')
         self.close_button = QPushButton('종료')
@@ -40,8 +41,8 @@ class MainWindow(QMainWindow):
         # 탭 노출
         self.tab1 = Tab1(self)
         self.tab2 = Tab2(self)
-        self.tab_widget.addTab(self.tab1, '엑셀 파일 병합')
-        self.tab_widget.addTab(self.tab2, '단일 시트')
+        self.tab_widget.addTab(self.tab1, '데이터 병합본')
+        self.tab_widget.addTab(self.tab2, '시트별 구분')
         self.header = []
         self.rows = None
         self.single_file_paths = None
@@ -152,21 +153,28 @@ class MainWindow(QMainWindow):
             self.header.append(header_item.text())
 
     def group_by_dialog(self):
-        # 집계 관련 다이얼 로그 노출
-        if self.tab_widget.currentWidget().table_widget:
-            dialog = groupby_Func(self, self.header)
-            result = dialog.exec()
-            # 다이얼 로그로 부터 값 가져오기
-            if result == QDialog.Accepted:
-                cmb1 = dialog.selected_combo_item
-                cmb2 = dialog.selected_combo_item2
-                radio_btn1 = dialog.selected_radio_button
-                # 탭 함수 호출
-                self.do_group_by(cmb1, cmb2, radio_btn1)
-            elif result == QDialog.Rejected:
-                return
-        else:
-            QMessageBox(self,'예외', '현재 탭에선 집계 기능을 사용할 수 없습니다.')
+        dialog = groupby_Func(self, self.header)
+        result = dialog.exec()
+        # 다이얼 로그로 부터 값 가져오기
+        if result == QDialog.Accepted:
+            cmb1 = dialog.selected_combo_item
+            cmb2 = dialog.selected_combo_item2
+            radio_btn1 = dialog.selected_radio_button
+            # 탭 함수 호출
+            self.do_group_by(cmb1, cmb2, radio_btn1)
+        elif result == QDialog.Rejected:
+            return
+
+    def duplicate_dialog(self):
+        dialog = duplicate_Fucn(self, self.header)
+        result = dialog.exec()
+        if result == QDialog.Accepted:
+            cmb1 = dialog.selected_combo_item
+            radio_btn1 = dialog.selected_radio_button
+            # 탭 함수 호출
+            self.do_duplicate(cmb1, radio_btn1)
+        elif result == QDialog.Rejected:
+            return
 
     def insert_col_dialog(self):
         if self.tab_widget.currentWidget().table_widget:
@@ -195,10 +203,13 @@ class MainWindow(QMainWindow):
 
     def do_group_by(self, cmb1, cmb2, radio_btn1):
         # 다이얼 로그 값을 받아와 GROUP BY 기능 실행
-        df = self.df
-        group = df.groupby(by=cmb1, as_index=False)[cmb2].agg(radio_btn1)
-        group_sorted = group.sort_values(by=cmb2, ascending=False)
+        group_sorted = dataframes.group_by_data(self.df, cmb1, cmb2, radio_btn1)
         self.df_to_table(group_sorted)
+
+    def do_duplicate(self, cmb1, radio_btn1):
+        # 다이얼 로그 값을 받아와 GROUP BY 기능 실행
+        duplicated = dataframes.duplicate_data(self.df, cmb1, radio_btn1)
+        self.df_to_table(duplicated)
 
     def do_insert_col(self, cmb, radio_btn, insert_header, insert_val):
         self.tab_widget.currentWidget()\

@@ -13,12 +13,14 @@ class func_Bundle(QDialog):
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
         self.do_group_by_btn = QPushButton('집계 함수 실행')
+        self.do_duplicate_btn = QPushButton('중복 제거')
         self.do_insert_btn_v = QPushButton('열 일괄 삽입')
         self.do_insert_btn_h = QPushButton('행 일괄 삽입')
         self.exit_dialog_btn = QPushButton('종료')
 
         layout.addLayout(layout2)
         layout2.addWidget(self.do_group_by_btn)
+        layout2.addWidget(self.do_duplicate_btn)
 
         layout.addLayout(layout3)
         layout3.addWidget(self.do_insert_btn_v)
@@ -27,6 +29,7 @@ class func_Bundle(QDialog):
         self.setLayout(layout)
 
         self.do_group_by_btn.clicked.connect(self.con_group_by_dialog)
+        self.do_duplicate_btn.clicked.connect(self.con_duplicate_dialog)
         self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
         self.do_insert_btn_h.clicked.connect(self.con_row_insert_dialog)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
@@ -41,6 +44,12 @@ class func_Bundle(QDialog):
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.group_by_dialog()
+
+    def con_duplicate_dialog(self):
+        # 집계 관련 다이얼로그 호출 함수
+        if self.table_data.rowCount() > 0:
+            self.accept()
+            self.main_window.duplicate_dialog()
 
     def con_col_insert_dialog(self):
         # 열 삽입 관련 다이얼로그 호출 함수
@@ -132,6 +141,63 @@ class groupby_Func(QDialog):
             self.selected_radio_button = "max"
         elif self.radio_btn5.isChecked():
             self.selected_radio_button = "mean"
+        else:
+            QMessageBox.warning(self, '경고', '집계 함수를 선택해 주세요.')
+            return
+        self.accept()
+
+    def exit_dialog(self):
+        # 다이얼 로그 종료
+        self.reject()
+
+class duplicate_Fucn(QDialog):
+    def __init__(self, main_window, header):
+        super().__init__()
+        self.setWindowTitle('중복 제거 팝업')
+        self.main_window = main_window
+
+        layout = QVBoxLayout()
+        layout2 = QHBoxLayout()
+        layout3 = QHBoxLayout()
+        layout4 = QHBoxLayout()
+        self.label1 = QLabel('기준 Column')
+        self.cmb1 = QComboBox()
+        self.label2 = QLabel('남길 Row : ')
+        self.radio_btn1 = QRadioButton('맨 위', self)
+        self.radio_btn2 = QRadioButton('맨 아래', self)
+        self.accept_btn = QPushButton('중복 제거')
+        self.exit_dialog_btn = QPushButton('취소')
+
+        layout.addLayout(layout2)
+        layout2.addWidget(self.label1)
+        layout2.addWidget(self.cmb1)
+
+        layout.addLayout(layout3)
+        layout3.addWidget(self.label2)
+        layout3.addWidget(self.radio_btn1)
+        layout3.addWidget(self.radio_btn2)
+
+        layout.addLayout(layout4)
+        layout4.addWidget(self.accept_btn)
+        layout4.addWidget(self.exit_dialog_btn)
+        self.setLayout(layout)
+
+        self.accept_btn.clicked.connect(self.accept_func)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
+
+        self.header = header
+        self.cmb1.addItems(self.header)
+
+        self.selected_combo_item = None
+        self.selected_radio_button = None
+
+    def accept_func(self):
+        # 다이얼 로그 값 전달
+        self.selected_combo_item = self.cmb1.currentText()
+        if self.radio_btn1.isChecked():
+            self.selected_radio_button = 'first'
+        elif self.radio_btn2.isChecked():
+            self.selected_radio_button = 'last'
         else:
             QMessageBox.warning(self, '경고', '집계 함수를 선택해 주세요.')
             return
@@ -336,3 +402,4 @@ class show_listwidget(QDialog):
     def change_table(self):
         file_path = self.list_widget.currentItem()
         self.main_window.list_widget_exec(file_path.text())
+

@@ -87,6 +87,15 @@ def file_change(file_path, sheet_name):
     return df
 
 
-def save_whole_sheet_to_one_file(file_paths, sheet_index):
-    dfs = []
-    excel_writer = pd.ExcelWriter()
+def group_by_data(df, cmb1, cmb2, radio_btn1):
+    # 다이얼 로그 값을 받아와 GROUP BY 기능 실행
+    group = df.groupby(by=cmb1, as_index=False)[cmb2].agg(radio_btn1)
+    group_sorted = group.sort_values(by=cmb2, ascending=False)
+    return group_sorted
+
+
+
+def duplicate_data(df, cmb1, radio_btn1):
+    duplicated = df.drop_duplicates(subset=cmb1, keep=radio_btn1)
+    return duplicated
+
