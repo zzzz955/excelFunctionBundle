@@ -686,7 +686,7 @@ class replace_Func(QDialog):
             last_row_index = int(self.lineedit4.text())
             if not (0 <= first_col_index <= len(self.header)) or not (0 <= last_col_index <= len(self.header)) or \
                     not (0 <= first_row_index <= self.rows) or not (0 <= last_row_index <= self.rows):
-                QMessageBox.warning(self, '경고', '범위 내의 데이터가 입력 되었는지 확인해 주세요.')
+                QMessageBox.warning(self, '경고', '범위 밖의 데이터가 입력 되었습니다.')
                 return
             find_text = self.lineedit5.text()
             replace_text = self.lineedit6.text()

@@ -332,29 +332,11 @@ class MainWindow(QMainWindow):
 
     def do_replace(self, first_col_index, last_col_index, first_row_index, last_row_index,
                    find_text, replace_text, if_exact):
-        if last_col_index - first_col_index >= 0:
-            cols = last_col_index - first_col_index + 1
-            start_col = first_col_index
-        elif last_col_index - first_col_index < 0:
-            cols = first_col_index - last_col_index + 1
-            start_col = last_row_index
-        else:
-            QMessageBox.warning(self, '경고', 'col_index를 성공적으로 불러오지 못했습니다.'
-                                            '올바른 값이 입력 되었는지 확인해 주세요.')
-            return
-        if last_row_index - first_row_index >= 0:
-            rows = last_row_index - first_row_index + 1
-            start_row = first_row_index
-        elif last_row_index - first_row_index < 0:
-            rows = first_row_index - last_row_index + 1
-            start_row = last_row_index
-        else:
-            QMessageBox.warning(self, '경고', 'row_index를 성공적으로 불러오지 못했습니다.'
-                                            '올바른 값이 입력 되었는지 확인해 주세요.')
-            return
+        cols = abs(last_col_index - first_col_index) + 1
+        rows = abs(last_row_index - first_row_index) + 1
         for row in range(rows):
             for col in range(cols):
-                item = self.tab_widget.currentWidget().table_widget.item(start_row+row, start_col+col)
+                item = self.tab_widget.currentWidget().table_widget.item(first_row_index+row, first_col_index+col)
                 if item:
                     text = item.text()
                     if find_text == text:
