@@ -597,16 +597,15 @@ class show_listwidget(QDialog):
 
 
 class replace_Func(QDialog):
-    def __init__(self, main_window, header, rows):
+    def __init__(self, main_window):
         super().__init__(main_window, flags=Qt.Window)
         self.setGeometry(850, 50, self.width(), self.height())
         self.setWindowTitle('문자열 변환')
         self.main_window = main_window
-        self.header = header
-        self.rows = rows
 
         # 위젯 추가
         layout = QVBoxLayout()
+        glayout = QGridLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
         layout4 = QHBoxLayout()
@@ -634,29 +633,32 @@ class replace_Func(QDialog):
         self.exit_dialog_btn = QPushButton('취소')
 
         # 레이아웃 지정
+        layout.addLayout(glayout)
+        glayout.addWidget(self.label1, 0, 0)
+        glayout.addWidget(self.lineedit1, 0, 1)
+        glayout.addWidget(self.label2, 0, 2)
+        glayout.addWidget(self.lineedit2, 0, 3)
+        glayout.addWidget(self.label3, 0, 4)
+        glayout.addWidget(self.checkbox1, 0, 5)
+        glayout.addWidget(self.label4, 1, 0)
+        glayout.addWidget(self.lineedit3, 1, 1)
+        glayout.addWidget(self.label5, 1, 2)
+        glayout.addWidget(self.lineedit4, 1, 3)
+        glayout.addWidget(self.label6, 1, 4)
+        glayout.addWidget(self.checkbox2, 1, 5)
+
         layout.addLayout(layout2)
-        layout2.addWidget(self.label1)
-        layout2.addWidget(self.lineedit1)
-        layout2.addWidget(self.label2)
-        layout2.addWidget(self.lineedit2)
-        layout2.addWidget(self.label3)
-        layout2.addWidget(self.checkbox1)
+        layout2.addWidget(self.label7)
+        layout2.addWidget(self.lineedit5)
 
         layout.addLayout(layout3)
-        layout3.addWidget(self.label4)
-        layout3.addWidget(self.lineedit3)
-        layout3.addWidget(self.label5)
-        layout3.addWidget(self.lineedit4)
-        layout3.addWidget(self.label6)
-        layout3.addWidget(self.checkbox2)
+        layout3.addWidget(self.label8)
+        layout3.addWidget(self.lineedit6)
 
         layout.addLayout(layout4)
-        layout4.addWidget(self.label7)
-        layout4.addWidget(self.lineedit5)
-        layout4.addWidget(self.label8)
-        layout4.addWidget(self.lineedit6)
         layout4.addWidget(self.label9)
         layout4.addWidget(self.checkbox3)
+        layout4.addStretch(1)
 
         layout.addLayout(layout5)
         layout5.addWidget(self.accept_btn)
@@ -675,6 +677,8 @@ class replace_Func(QDialog):
         self.lineedit2.setValidator(QIntValidator())
         self.lineedit3.setValidator(QIntValidator())
         self.lineedit4.setValidator(QIntValidator())
+        self.label2.setAlignment(Qt.AlignCenter)
+        self.label5.setAlignment(Qt.AlignCenter)
 
     def accept_func(self):
         # 다이얼 로그 값 전달
@@ -684,8 +688,10 @@ class replace_Func(QDialog):
             last_col_index = int(self.lineedit2.text())
             first_row_index = int(self.lineedit3.text())
             last_row_index = int(self.lineedit4.text())
-            if not (0 <= first_col_index <= len(self.header)) or not (0 <= last_col_index <= len(self.header)) or \
-                    not (0 <= first_row_index <= self.rows) or not (0 <= last_row_index <= self.rows):
+            if not (0 <= first_col_index <= len(self.main_window.header)) or \
+                    not (0 <= last_col_index <= len(self.main_window.header)) or \
+                    not (0 <= first_row_index <= self.main_window.rows) or \
+                    not (0 <= last_row_index <= self.main_window.rows):
                 QMessageBox.warning(self, '경고', '범위 밖의 데이터가 입력 되었습니다.')
                 return
             find_text = self.lineedit5.text()
@@ -700,7 +706,7 @@ class replace_Func(QDialog):
     def checkbox1_signal(self, state):
         if state == 2:
             self.lineedit1.setText("1")
-            self.lineedit2.setText(str(len(self.header)))
+            self.lineedit2.setText(str(len(self.main_window.header)))
             self.lineedit1.setReadOnly(True)
             self.lineedit2.setReadOnly(True)
         elif state == 0:
@@ -710,7 +716,7 @@ class replace_Func(QDialog):
     def checkbox2_signal(self, state):
         if state == 2:
             self.lineedit3.setText("1")
-            self.lineedit4.setText(str(self.rows))
+            self.lineedit4.setText(str(self.main_window.rows))
             self.lineedit3.setReadOnly(True)
             self.lineedit4.setReadOnly(True)
         elif state == 0:
@@ -720,4 +726,3 @@ class replace_Func(QDialog):
     def exit_dialog(self):
         # 다이얼 로그 종료
         self.close()
-

@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
 
     def replace_dialog(self):
         # 찾아 바꾸기 다이얼 로그 호출
-        dialog = replace_Func(self, self.header, self.rows)
+        dialog = replace_Func(self)
         dialog.show()
 
     def clear_black_row(self):
