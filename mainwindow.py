@@ -166,7 +166,7 @@ class MainWindow(QMainWindow):
     def func_Bundle_exec(self):
         # 기능 다이얼 로그 호출
         dialog = func_Bundle(self)
-        dialog.exec()
+        dialog.show()
 
     def show_listwidget_exec(self):
         # 리스트 위젯 다이얼 로그 호출
@@ -205,36 +205,66 @@ class MainWindow(QMainWindow):
 
     def insert_col_dialog(self):
         # 열 삽입 다이얼 로그 호출
-        if self.tab_widget.currentWidget().table_widget:
-            dialog = insert_col_Func(self, self.header)
-            result = dialog.exec()
-            if result == QDialog.Accepted:
-                cmb = dialog.selected_combo_index
-                radio_btn = dialog.selected_radio_button
-                insert_header = dialog.inserted_header_val
-                insert_val = dialog.inserted_data_val
-                self.do_insert_col(cmb, radio_btn, insert_header, insert_val)
-            elif result == QDialog.Rejected:
-                return
+        dialog = insert_col_Func(self, self.header)
+        result = dialog.exec()
+        if result == QDialog.Accepted:
+            cmb = dialog.selected_combo_index
+            radio_btn = dialog.selected_radio_button
+            insert_header = dialog.inserted_header_val
+            insert_val = dialog.inserted_data_val
+            self.do_insert_col(cmb, radio_btn, insert_header, insert_val)
+        elif result == QDialog.Rejected:
+            return
 
     def insert_row_dialog(self):
         # 행 삽입 다이얼 로그 호출
-        if self.tab_widget.currentWidget().table_widget:
-            dialog = insert_row_Func(self, self.header, self.rows)
-            result = dialog.exec()
-            if result == QDialog.Accepted:
-                row_index = int(dialog.selected_row_index)
-                datas = dialog.insert_list
-                radio_btn = dialog.selected_radio_button
-                self.do_insert_row(row_index, radio_btn, datas)
-            elif result == QDialog.Rejected:
-                return
+        dialog = insert_row_Func(self, self.header, self.rows)
+        result = dialog.exec()
+        if result == QDialog.Accepted:
+            row_index = int(dialog.selected_row_index)
+            datas = dialog.insert_list
+            radio_btn = dialog.selected_radio_button
+            self.do_insert_row(row_index, radio_btn, datas)
+        elif result == QDialog.Rejected:
+            return
+
+    def delete_col_dialog(self):
+        try:
+        # 열 삭제 다이얼 로그 호출
+            dialog = delete_col_Func(self, self.header)
+            dialog.exec()
+        except Exception as e:
+            print(e)
+
+    def delete_row_dialog(self):
+        # 행 삽입 다이얼 로그 호출
+        dialog = insert_row_Func(self, self.header, self.rows)
+        result = dialog.exec()
+        if result == QDialog.Accepted:
+            row_index = int(dialog.selected_row_index)
+            datas = dialog.insert_list
+            radio_btn = dialog.selected_radio_button
+            self.do_insert_row(row_index, radio_btn, datas)
+        elif result == QDialog.Rejected:
+            return
 
     def replace_dialog(self):
-        # 행 삽입 다이얼 로그 호출
-        if self.tab_widget.currentWidget().table_widget:
-            dialog = replace_Func(self)
-            dialog.show()
+        # 찾아 바꾸기 다이얼 로그 호출
+        dialog = replace_Func(self)
+        dialog.show()
+
+    def clear_black_row(self):
+        # 빈 행 삭제 다이얼 로그 호출
+        blank_rows_index = []
+        for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):
+            items = []
+            for col in range(self.tab_widget.currentWidget().table_widget.columnCount()):
+                item = self.tab_widget.currentWidget().table_widget.item(row, col)
+                items.append(item.text())
+            if all(item == '' for item in items):
+                blank_rows_index.append(row)
+        for i in reversed(blank_rows_index):
+            self.tab_widget.currentWidget().table_widget.removeRow(i)
 
     def do_group_by(self, cmb1, cmb2, radio_btn1):
         # 다이얼 로그 값을 받아와 집계 기능 실행
@@ -273,6 +303,12 @@ class MainWindow(QMainWindow):
                     row_index + radio_btn + index - 1, col, QTableWidgetItem(data[col]))
             self.data_update()
 
+    def do_delete_col(self, first_col_index, last_col_index):
+        # 다이얼 로그 값을 받아와 열 삭제 기능 실행
+        for i in range(last_col_index-first_col_index+1):
+            self.tab_widget.currentWidget().table_widget.removeColumn(first_col_index)
+        self.data_update()
+
     def do_replace(self, find_text, replace_text, if_exact):
         for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):
             for col in range(self.tab_widget.currentWidget().table_widget.columnCount()):
@@ -301,7 +337,7 @@ class MainWindow(QMainWindow):
     def table_to_excel(self):
         # 테이블 데이터 기준 엑셀 파일 추출
         try:
-            # 테이블 데이터프레임화 및 엑셀 파일 저장
+            # 테이블 데이터 프레임 화 및 엑셀 파일 저장
             if self.tab_widget.currentWidget().table_widget.rowCount() > 0:
                 save_file_path, _ = QFileDialog.getSaveFileName(self, '파일 선택', '', 'Excel File(*.xlsx)')
                 if not save_file_path:

@@ -7,7 +7,8 @@ from PyQt5.QtCore import Qt
 
 class func_Bundle(QDialog):
     def __init__(self, main_window):
-        super().__init__()
+        super().__init__(main_window, flags=Qt.Window)
+        self.setGeometry(850, 50, self.width(), self.height())
         self.setWindowTitle('기능 모음')
         self.main_window = main_window
         
@@ -18,7 +19,10 @@ class func_Bundle(QDialog):
         self.do_duplicate_btn = QPushButton('중복 제거')
         self.do_insert_btn_v = QPushButton('열 일괄 삽입')
         self.do_insert_btn_h = QPushButton('행 일괄 삽입')
+        self.do_delete_btn_v = QPushButton('열 일괄 삭제')
+        self.do_delete_btn_h = QPushButton('행 일괄 삭제')
         self.do_replace_btn = QPushButton('찾아 바꾸기')
+        self.do_clear_black_row = QPushButton('빈 행 삭제')
         self.exit_dialog_btn = QPushButton('종료')
 
         # 레이아웃 지정
@@ -27,7 +31,10 @@ class func_Bundle(QDialog):
         layout2.addWidget(self.do_duplicate_btn, 0, 1)
         layout2.addWidget(self.do_insert_btn_v, 1, 0)
         layout2.addWidget(self.do_insert_btn_h, 1, 1)
-        layout2.addWidget(self.do_replace_btn, 2, 0)
+        layout2.addWidget(self.do_delete_btn_v, 2, 0)
+        layout2.addWidget(self.do_delete_btn_h, 2, 1)
+        layout2.addWidget(self.do_replace_btn, 3, 0)
+        layout2.addWidget(self.do_clear_black_row, 3, 1)
         layout.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
         
@@ -36,7 +43,10 @@ class func_Bundle(QDialog):
         self.do_duplicate_btn.clicked.connect(self.con_duplicate_dialog)
         self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
         self.do_insert_btn_h.clicked.connect(self.con_row_insert_dialog)
+        self.do_delete_btn_v.clicked.connect(self.con_col_delete_dialog)
+        self.do_delete_btn_h.clicked.connect(self.con_row_delete_dialog)
         self.do_replace_btn.clicked.connect(self.con_replace_dialog)
+        self.do_clear_black_row.clicked.connect(self.con_clear_black_row)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
         
         # 데이터 확인
@@ -69,11 +79,29 @@ class func_Bundle(QDialog):
             self.accept()
             self.main_window.insert_row_dialog()
 
+    def con_col_delete_dialog(self):
+        # 열 삽입 관련 다이얼 로그 호출 함수
+        if self.table_data.rowCount() > 0:
+            self.accept()
+            self.main_window.delete_col_dialog()
+
+    def con_row_delete_dialog(self):
+        # 열 삽입 관련 다이얼 로그 호출 함수
+        if self.table_data.rowCount() > 0:
+            self.accept()
+            self.main_window.delete_row_dialog()
+
     def con_replace_dialog(self):
         # 행 삽입 관련 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.replace_dialog()
+
+    def con_clear_black_row(self):
+        # 행 삽입 관련 다이얼 로그 호출 함수
+        if self.table_data.rowCount() > 0:
+            self.accept()
+            self.main_window.clear_black_row()
 
     def exit_dialog(self):
         # 다이얼 로그 종료
@@ -421,6 +449,68 @@ class insert_row_Func(QDialog):
         self.reject()
 
 
+class delete_col_Func(QDialog):
+    def __init__(self, main_window, header):
+        super().__init__()
+        self.setGeometry(850, 50, self.width(), self.height())
+        self.setWindowTitle('데이터 삭제')
+        self.main_window = main_window
+        self.header = header
+        self.setGeometry(self.x(), self.y(), 800, self.height())
+
+        # 위젯 추가
+        layout = QVBoxLayout()
+        layout2 = QHBoxLayout()
+        layout3 = QHBoxLayout()
+        self.label1 = QLabel('<b>시작 기준 Column : </b>')
+        self.combobox1 = QComboBox()
+        self.label2 = QLabel('<b>종료 기준 Column : </b>')
+        self.combobox2 = QComboBox()
+        self.accept_btn = QPushButton('삭제')
+        self.exit_dialog_btn = QPushButton('취소')
+
+        # 레이아웃 지정
+        layout.addLayout(layout2)
+        layout2.addWidget(self.label1)
+        layout2.addWidget(self.combobox1)
+        layout2.addWidget(self.label2)
+        layout2.addWidget(self.combobox2)
+
+        layout.addLayout(layout3)
+        layout3.addWidget(self.accept_btn)
+        layout3.addWidget(self.exit_dialog_btn)
+        self.setLayout(layout)
+
+        # 시그널 추가
+        self.accept_btn.clicked.connect(self.accept_func)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
+
+        self.add_comboboxes_items()
+
+    def add_comboboxes_items(self):
+        self.combobox1.addItems(self.header)
+        self.combobox2.addItems(self.header)
+
+    def accept_func(self):
+        # 다이얼 로그 값 전달
+        first_col_index = self.combobox1.currentIndex()
+        last_col_index = self.combobox2.currentIndex()
+        if first_col_index > len(self.header) or last_col_index > len(self.header):
+            QMessageBox.warning(self, '경고', f'데이터 삽입 기준 Column 값을 확인해 주세요. '
+                                            f'입력 가능 범위 : 0~{len(self.header)}')
+            return
+        elif first_col_index - last_col_index > 0:
+            QMessageBox.warning(self, '경고', f'데이터 삽입 기준 Column 값을 확인해 주세요. '
+                                            f'시작 기준 칼럼은 종료 기준 칼럼의 앞에 위치 해야 합니다.')
+            return
+        self.accept()
+        self.main_window.do_delete_col(first_col_index, last_col_index)
+
+    def exit_dialog(self):
+        # 다이얼 로그 종료
+        self.reject()
+
+
 class show_listwidget(QDialog):
     def __init__(self, main_window):
         super().__init__(main_window, flags=Qt.Window)
@@ -500,3 +590,4 @@ class replace_Func(QDialog):
     def exit_dialog(self):
         # 다이얼 로그 종료
         self.close()
+
