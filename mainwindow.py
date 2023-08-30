@@ -71,12 +71,15 @@ class MainWindow(QMainWindow):
 
     def initialize_func(self):
         # 기능 초기화 함수
-        if self.tab_widget.currentIndex() == 0 and self.tab1_df:
-            self.df_to_table(self.tab1_df)
-        elif self.tab_widget.currentIndex() == 1 and self.tab2_df:
-            self.df_to_table(self.tab2_df)
-        else:
-            return
+        try:
+            if self.tab_widget.currentIndex() == 0 and self.tab1_df is not None and not self.tab1_df.empty:
+                self.df_to_table(self.tab1_df)
+            elif self.tab_widget.currentIndex() == 1 and self.tab2_df is not None and not self.tab2_df.empty:
+                self.df_to_table(self.tab2_df)
+            else:
+                return
+        except Exception as e:
+            print(e)
 
     def sort_table(self, logical_index, order):
         # 테이블 위젯 정렬 함수
@@ -166,7 +169,7 @@ class MainWindow(QMainWindow):
     def func_Bundle_exec(self):
         # 기능 다이얼 로그 호출
         dialog = func_Bundle(self)
-        dialog.show()
+        dialog.exec()
 
     def show_listwidget_exec(self):
         # 리스트 위젯 다이얼 로그 호출
@@ -309,10 +312,10 @@ class MainWindow(QMainWindow):
         # 다이얼 로그 값을 받아와 열 삭제 기능 실행
         try:
             if last_row_index-first_row_index >= 0:
-                rows = last_row_index-first_row_index
+                rows = last_row_index-first_row_index+1
                 start_row = first_row_index
             elif last_row_index-first_row_index < 0:
-                rows = first_row_index-last_row_index
+                rows = first_row_index-last_row_index+1
                 start_row = last_row_index
             else:
                 QMessageBox.warning(self, '경고', 'row_index를 성공적으로 불러오지 못했습니다.'

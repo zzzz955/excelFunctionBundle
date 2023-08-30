@@ -7,8 +7,8 @@ from PyQt5.QtCore import Qt
 
 class func_Bundle(QDialog):
     def __init__(self, main_window):
-        super().__init__(main_window, flags=Qt.Window)
-        self.setGeometry(850, 50, self.width(), self.height())
+        super().__init__()
+        #self.setGeometry(850, 50, self.width(), self.height())
         self.setWindowTitle('기능 모음')
         self.main_window = main_window
         
@@ -17,10 +17,10 @@ class func_Bundle(QDialog):
         layout2 = QGridLayout()
         self.do_group_by_btn = QPushButton('집계 함수 실행')
         self.do_duplicate_btn = QPushButton('중복 제거')
-        self.do_insert_btn_v = QPushButton('열 일괄 삽입')
         self.do_insert_btn_h = QPushButton('행 일괄 삽입')
-        self.do_delete_btn_v = QPushButton('열 일괄 삭제')
         self.do_delete_btn_h = QPushButton('행 일괄 삭제')
+        self.do_insert_btn_v = QPushButton('열 일괄 삽입')
+        self.do_delete_btn_v = QPushButton('열 일괄 삭제')
         self.do_replace_btn = QPushButton('찾아 바꾸기')
         self.do_clear_black_row = QPushButton('빈 행 삭제')
         self.exit_dialog_btn = QPushButton('종료')
@@ -29,10 +29,10 @@ class func_Bundle(QDialog):
         layout.addLayout(layout2)
         layout2.addWidget(self.do_group_by_btn, 0, 0)
         layout2.addWidget(self.do_duplicate_btn, 0, 1)
-        layout2.addWidget(self.do_insert_btn_v, 1, 0)
-        layout2.addWidget(self.do_insert_btn_h, 1, 1)
-        layout2.addWidget(self.do_delete_btn_v, 2, 0)
-        layout2.addWidget(self.do_delete_btn_h, 2, 1)
+        layout2.addWidget(self.do_insert_btn_h, 1, 0)
+        layout2.addWidget(self.do_delete_btn_h, 1, 1)
+        layout2.addWidget(self.do_insert_btn_v, 2, 0)
+        layout2.addWidget(self.do_delete_btn_v, 2, 1)
         layout2.addWidget(self.do_replace_btn, 3, 0)
         layout2.addWidget(self.do_clear_black_row, 3, 1)
         layout.addWidget(self.exit_dialog_btn)
@@ -41,10 +41,10 @@ class func_Bundle(QDialog):
         # 시그널 추가
         self.do_group_by_btn.clicked.connect(self.con_group_by_dialog)
         self.do_duplicate_btn.clicked.connect(self.con_duplicate_dialog)
-        self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
         self.do_insert_btn_h.clicked.connect(self.con_row_insert_dialog)
-        self.do_delete_btn_v.clicked.connect(self.con_col_delete_dialog)
         self.do_delete_btn_h.clicked.connect(self.con_row_delete_dialog)
+        self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
+        self.do_delete_btn_v.clicked.connect(self.con_col_delete_dialog)
         self.do_replace_btn.clicked.connect(self.con_replace_dialog)
         self.do_clear_black_row.clicked.connect(self.con_clear_black_row)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
@@ -80,25 +80,25 @@ class func_Bundle(QDialog):
             self.main_window.insert_row_dialog()
 
     def con_col_delete_dialog(self):
-        # 열 삽입 관련 다이얼 로그 호출 함수
+        # 열 삭제 관련 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.delete_col_dialog()
 
     def con_row_delete_dialog(self):
-        # 열 삽입 관련 다이얼 로그 호출 함수
+        # 행 삭제 관련 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.delete_row_dialog()
 
     def con_replace_dialog(self):
-        # 행 삽입 관련 다이얼 로그 호출 함수
+        # 찾아 바꾸기 관련 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.replace_dialog()
 
     def con_clear_black_row(self):
-        # 행 삽입 관련 다이얼 로그 호출 함수
+        # 빈 셀 삭제 관련 다이얼 로그 호출 함수
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.clear_black_row()
