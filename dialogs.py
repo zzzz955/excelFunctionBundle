@@ -597,22 +597,39 @@ class show_listwidget(QDialog):
 
 
 class replace_Func(QDialog):
-    def __init__(self, main_window):
+    def __init__(self, main_window, header, rows):
         super().__init__(main_window, flags=Qt.Window)
         self.setGeometry(850, 50, self.width(), self.height())
         self.setWindowTitle('문자열 변환')
         self.main_window = main_window
+        self.header = header
+        self.rows = rows
 
         # 위젯 추가
         layout = QVBoxLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
-        self.label1 = QLabel('찾을 문구 : ')
+        layout4 = QHBoxLayout()
+        layout5 = QHBoxLayout()
+
+        self.label1 = QLabel('기준 Column : ')
         self.lineedit1 = QLineEdit()
-        self.label2 = QLabel('변환할 문구 : ')
+        self.label2 = QLabel(' ~ ')
         self.lineedit2 = QLineEdit()
-        self.label3 = QLabel('정확히 일치 여부 : ')
+        self.label3 = QLabel('전체 Column : ')
         self.checkbox1 = QCheckBox()
+        self.label4 = QLabel('기준 Row : ')
+        self.lineedit3 = QLineEdit()
+        self.label5 = QLabel(' ~ ')
+        self.lineedit4 = QLineEdit()
+        self.label6 = QLabel('전체 Row : ')
+        self.checkbox2 = QCheckBox()
+        self.label7 = QLabel('찾을 문구 : ')
+        self.lineedit5 = QLineEdit()
+        self.label8 = QLabel('변환할 문구 : ')
+        self.lineedit6 = QLineEdit()
+        self.label9 = QLabel('정확히 일치 여부 : ')
+        self.checkbox3 = QCheckBox()
         self.accept_btn = QPushButton('변환')
         self.exit_dialog_btn = QPushButton('취소')
 
@@ -626,23 +643,79 @@ class replace_Func(QDialog):
         layout2.addWidget(self.checkbox1)
 
         layout.addLayout(layout3)
-        layout3.addWidget(self.accept_btn)
-        layout3.addWidget(self.exit_dialog_btn)
+        layout3.addWidget(self.label4)
+        layout3.addWidget(self.lineedit3)
+        layout3.addWidget(self.label5)
+        layout3.addWidget(self.lineedit4)
+        layout3.addWidget(self.label6)
+        layout3.addWidget(self.checkbox2)
+
+        layout.addLayout(layout4)
+        layout4.addWidget(self.label7)
+        layout4.addWidget(self.lineedit5)
+        layout4.addWidget(self.label8)
+        layout4.addWidget(self.lineedit6)
+        layout4.addWidget(self.label9)
+        layout4.addWidget(self.checkbox3)
+
+        layout.addLayout(layout5)
+        layout5.addWidget(self.accept_btn)
+        layout5.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
 
         # 시그널 추가
         self.accept_btn.clicked.connect(self.accept_func)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
+        self.checkbox1.stateChanged.connect(self.checkbox1_signal)
+        self.checkbox2.stateChanged.connect(self.checkbox2_signal)
+
+        self.checkbox1.setChecked(True)
+        self.checkbox2.setChecked(True)
+        self.lineedit1.setValidator(QIntValidator())
+        self.lineedit2.setValidator(QIntValidator())
+        self.lineedit3.setValidator(QIntValidator())
+        self.lineedit4.setValidator(QIntValidator())
 
     def accept_func(self):
         # 다이얼 로그 값 전달
-        find_text = self.lineedit1.text()
-        replace_text = self.lineedit2.text()
-        if self.checkbox1.isChecked():
-            checkbox_value = True
-        else:
-            checkbox_value = False
-        self.main_window.do_replace(find_text, replace_text, checkbox_value)
+        if self.lineedit1.text() and self.lineedit2.text() and \
+                self.lineedit3.text() and self.lineedit4.text():
+            first_col_index = int(self.lineedit1.text())
+            last_col_index = int(self.lineedit2.text())
+            first_row_index = int(self.lineedit3.text())
+            last_row_index = int(self.lineedit4.text())
+            if not (0 <= first_col_index <= len(self.header)) or not (0 <= last_col_index <= len(self.header)) or \
+                    not (0 <= first_row_index <= self.rows) or not (0 <= last_row_index <= self.rows):
+                QMessageBox.warning(self, '경고', '범위 내의 데이터가 입력 되었는지 확인해 주세요.')
+                return
+            find_text = self.lineedit5.text()
+            replace_text = self.lineedit6.text()
+            if self.checkbox3.isChecked():
+                checkbox_value = True
+            else:
+                checkbox_value = False
+            self.main_window.do_replace(first_col_index-1, last_col_index-1, first_row_index-1, last_row_index-1,
+                                        find_text, replace_text, checkbox_value)
+
+    def checkbox1_signal(self, state):
+        if state == 2:
+            self.lineedit1.setText("1")
+            self.lineedit2.setText(str(len(self.header)))
+            self.lineedit1.setReadOnly(True)
+            self.lineedit2.setReadOnly(True)
+        elif state == 0:
+            self.lineedit1.setReadOnly(False)
+            self.lineedit2.setReadOnly(False)
+
+    def checkbox2_signal(self, state):
+        if state == 2:
+            self.lineedit3.setText("1")
+            self.lineedit4.setText(str(self.rows))
+            self.lineedit3.setReadOnly(True)
+            self.lineedit4.setReadOnly(True)
+        elif state == 0:
+            self.lineedit3.setReadOnly(False)
+            self.lineedit4.setReadOnly(False)
 
     def exit_dialog(self):
         # 다이얼 로그 종료

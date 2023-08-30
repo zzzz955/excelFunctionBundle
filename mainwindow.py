@@ -5,6 +5,7 @@ from qt_material import apply_stylesheet
 from tabs import *
 from dialogs import *
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -101,10 +102,10 @@ class MainWindow(QMainWindow):
                     self.modeless_dialog.show()
         except Exception as e:
             QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 불러 올 수 없습니다. {e}'
-                                          f'\n1. 파일이 열려 있는 상태 인지 확인해 주세요.'
-                                          f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
-                                          f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
-                                          f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
+                                                f'\n1. 파일이 열려 있는 상태 인지 확인해 주세요.'
+                                                f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
+                                                f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def multiple_sheet_excel_file_upload(self):
         # 다중 시트 엑셀 파일 업로드
@@ -121,10 +122,10 @@ class MainWindow(QMainWindow):
                     self.modeless_dialog.show()
         except Exception as e:
             QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 불러 올 수 없습니다. {e}'
-                                          f'\n1. 파일이 열려 있는 상태 인지 확인해 주세요.'
-                                          f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
-                                          f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
-                                          f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
+                                                f'\n1. 파일이 열려 있는 상태 인지 확인해 주세요.'
+                                                f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
+                                                f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def single_sheet_excel_file_conversion(self, file_paths):
         # 엑셀 파일 병합
@@ -159,8 +160,10 @@ class MainWindow(QMainWindow):
                 item = str(df.iloc[r, c])
                 self.tab_widget.currentWidget().table_widget.setItem(r, c, QTableWidgetItem(item))
         self.tab_widget.currentWidget().table_widget.resizeColumnsToContents()
-        self.tab_widget.currentWidget().label1.setText(f'rowCount : {str(self.tab_widget.currentWidget().table_widget.rowCount())}')
-        self.tab_widget.currentWidget().label2.setText(f'columnCount : {str(self.tab_widget.currentWidget().table_widget.columnCount())}')
+        self.tab_widget.currentWidget().label1.setText(
+            f'rowCount : {str(self.tab_widget.currentWidget().table_widget.rowCount())}')
+        self.tab_widget.currentWidget().label2.setText(
+            f'columnCount : {str(self.tab_widget.currentWidget().table_widget.columnCount())}')
         for column in range(self.tab_widget.currentWidget().table_widget.columnCount()):
             header_item = self.tab_widget.currentWidget().table_widget.horizontalHeaderItem(column)
             self.header.append(header_item.text())
@@ -233,7 +236,7 @@ class MainWindow(QMainWindow):
 
     def delete_col_dialog(self):
         try:
-        # 열 삭제 다이얼 로그 호출
+            # 열 삭제 다이얼 로그 호출
             dialog = delete_col_Func(self, self.header)
             dialog.exec()
         except Exception as e:
@@ -249,7 +252,7 @@ class MainWindow(QMainWindow):
 
     def replace_dialog(self):
         # 찾아 바꾸기 다이얼 로그 호출
-        dialog = replace_Func(self)
+        dialog = replace_Func(self, self.header, self.rows)
         dialog.show()
 
     def clear_black_row(self):
@@ -285,12 +288,12 @@ class MainWindow(QMainWindow):
 
     def do_insert_col(self, cmb, radio_btn, insert_header, insert_val):
         # 다이얼 로그 값을 받아와 열 삽입 기능 실행
-        self.tab_widget.currentWidget()\
-            .table_widget.insertColumn(cmb+radio_btn)
-        self.tab_widget.currentWidget()\
-            .table_widget.setHorizontalHeaderItem(cmb+radio_btn, QTableWidgetItem(insert_header))
+        self.tab_widget.currentWidget() \
+            .table_widget.insertColumn(cmb + radio_btn)
+        self.tab_widget.currentWidget() \
+            .table_widget.setHorizontalHeaderItem(cmb + radio_btn, QTableWidgetItem(insert_header))
         for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):
-            self.tab_widget.currentWidget().table_widget.setItem(row, cmb+radio_btn, QTableWidgetItem(insert_val))
+            self.tab_widget.currentWidget().table_widget.setItem(row, cmb + radio_btn, QTableWidgetItem(insert_val))
         self.data_update()
 
     def do_insert_row(self, row_index, radio_btn, datas):
@@ -304,18 +307,18 @@ class MainWindow(QMainWindow):
 
     def do_delete_col(self, first_col_index, last_col_index):
         # 다이얼 로그 값을 받아와 열 삭제 기능 실행
-        for i in range(last_col_index-first_col_index+1):
+        for i in range(last_col_index - first_col_index + 1):
             self.tab_widget.currentWidget().table_widget.removeColumn(first_col_index)
         self.data_update()
 
     def do_delete_row(self, first_row_index, last_row_index):
         # 다이얼 로그 값을 받아와 열 삭제 기능 실행
         try:
-            if last_row_index-first_row_index >= 0:
-                rows = last_row_index-first_row_index+1
+            if last_row_index - first_row_index >= 0:
+                rows = last_row_index - first_row_index + 1
                 start_row = first_row_index
-            elif last_row_index-first_row_index < 0:
-                rows = first_row_index-last_row_index+1
+            elif last_row_index - first_row_index < 0:
+                rows = first_row_index - last_row_index + 1
                 start_row = last_row_index
             else:
                 QMessageBox.warning(self, '경고', 'row_index를 성공적으로 불러오지 못했습니다.'
@@ -327,10 +330,31 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(e)
 
-    def do_replace(self, find_text, replace_text, if_exact):
-        for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):
-            for col in range(self.tab_widget.currentWidget().table_widget.columnCount()):
-                item = self.tab_widget.currentWidget().table_widget.item(row, col)
+    def do_replace(self, first_col_index, last_col_index, first_row_index, last_row_index,
+                   find_text, replace_text, if_exact):
+        if last_col_index - first_col_index >= 0:
+            cols = last_col_index - first_col_index + 1
+            start_col = first_col_index
+        elif last_col_index - first_col_index < 0:
+            cols = first_col_index - last_col_index + 1
+            start_col = last_row_index
+        else:
+            QMessageBox.warning(self, '경고', 'col_index를 성공적으로 불러오지 못했습니다.'
+                                            '올바른 값이 입력 되었는지 확인해 주세요.')
+            return
+        if last_row_index - first_row_index >= 0:
+            rows = last_row_index - first_row_index + 1
+            start_row = first_row_index
+        elif last_row_index - first_row_index < 0:
+            rows = first_row_index - last_row_index + 1
+            start_row = last_row_index
+        else:
+            QMessageBox.warning(self, '경고', 'row_index를 성공적으로 불러오지 못했습니다.'
+                                            '올바른 값이 입력 되었는지 확인해 주세요.')
+            return
+        for row in range(rows):
+            for col in range(cols):
+                item = self.tab_widget.currentWidget().table_widget.item(start_row+row, start_col+col)
                 if item:
                     text = item.text()
                     if find_text == text:
@@ -389,6 +413,7 @@ class MainWindow(QMainWindow):
     def close_app(self):
         # 앱 종료
         self.close()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
