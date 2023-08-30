@@ -237,16 +237,12 @@ class MainWindow(QMainWindow):
             print(e)
 
     def delete_row_dialog(self):
-        # 행 삽입 다이얼 로그 호출
-        dialog = insert_row_Func(self, self.header, self.rows)
-        result = dialog.exec()
-        if result == QDialog.Accepted:
-            row_index = int(dialog.selected_row_index)
-            datas = dialog.insert_list
-            radio_btn = dialog.selected_radio_button
-            self.do_insert_row(row_index, radio_btn, datas)
-        elif result == QDialog.Rejected:
-            return
+        # 행 삭제 다이얼 로그 호출
+        try:
+            dialog = delete_row_Func(self, self.rows)
+            dialog.exec()
+        except Exception as e:
+            print(e)
 
     def replace_dialog(self):
         # 찾아 바꾸기 다이얼 로그 호출
@@ -308,6 +304,25 @@ class MainWindow(QMainWindow):
         for i in range(last_col_index-first_col_index+1):
             self.tab_widget.currentWidget().table_widget.removeColumn(first_col_index)
         self.data_update()
+
+    def do_delete_row(self, first_row_index, last_row_index):
+        # 다이얼 로그 값을 받아와 열 삭제 기능 실행
+        try:
+            if last_row_index-first_row_index >= 0:
+                rows = last_row_index-first_row_index
+                start_row = first_row_index
+            elif last_row_index-first_row_index < 0:
+                rows = first_row_index-last_row_index
+                start_row = last_row_index
+            else:
+                QMessageBox.warning(self, '경고', 'row_index를 성공적으로 불러오지 못했습니다.'
+                                                '올바른 값이 입력 되었는지 확인해 주세요.')
+                return
+            for i in range(rows):
+                self.tab_widget.currentWidget().table_widget.removeRow(start_row)
+            self.data_update()
+        except Exception as e:
+            print(e)
 
     def do_replace(self, find_text, replace_text, if_exact):
         for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):

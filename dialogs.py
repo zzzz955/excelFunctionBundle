@@ -456,7 +456,6 @@ class delete_col_Func(QDialog):
         self.setWindowTitle('데이터 삭제')
         self.main_window = main_window
         self.header = header
-        self.setGeometry(self.x(), self.y(), 800, self.height())
 
         # 위젯 추가
         layout = QVBoxLayout()
@@ -505,6 +504,64 @@ class delete_col_Func(QDialog):
             return
         self.accept()
         self.main_window.do_delete_col(first_col_index, last_col_index)
+
+    def exit_dialog(self):
+        # 다이얼 로그 종료
+        self.reject()
+
+
+class delete_row_Func(QDialog):
+    def __init__(self, main_window, rows):
+        super().__init__()
+        self.setGeometry(850, 50, self.width(), self.height())
+        self.setWindowTitle('데이터 삭제')
+        self.main_window = main_window
+        self.rows = rows
+
+        # 위젯 추가
+        layout = QVBoxLayout()
+        layout2 = QHBoxLayout()
+        layout3 = QHBoxLayout()
+        self.label1 = QLabel('<b>시작 기준 Row : </b>')
+        self.lineedit1 = QLineEdit()
+        self.label2 = QLabel('<b>종료 기준 Row : </b>')
+        self.lineedit2 = QLineEdit()
+        self.accept_btn = QPushButton('삭제')
+        self.exit_dialog_btn = QPushButton('취소')
+
+        # 레이아웃 지정
+        layout.addLayout(layout2)
+        layout2.addWidget(self.label1)
+        layout2.addWidget(self.lineedit1)
+        layout2.addWidget(self.label2)
+        layout2.addWidget(self.lineedit2)
+
+        layout.addLayout(layout3)
+        layout3.addWidget(self.accept_btn)
+        layout3.addWidget(self.exit_dialog_btn)
+        self.setLayout(layout)
+
+        # 시그널 추가
+        self.accept_btn.clicked.connect(self.accept_func)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
+
+    def accept_func(self):
+        # 다이얼 로그 값 전달
+        if self.lineedit1.text() and self.lineedit2.text():
+            first_row_index = int(self.lineedit1.text())-1
+            last_row_index = int(self.lineedit2.text())-1
+            if 0 <= first_row_index <= self.rows:
+                if 0 <= last_row_index <= self.rows:
+                    self.accept()
+                    self.main_window.do_delete_row(first_row_index, last_row_index)
+                else:
+                    QMessageBox.warning(self, '경고', f'종료 기준 Row의 데이터 값을 확인해 주세요. '
+                                                    f'입력 가능 범위 : 1~{self.rows}')
+                    return
+            else:
+                QMessageBox.warning(self, '경고', f'시작 기준 Row의 데이터 값을 확인해 주세요. '
+                                                f'입력 가능 범위 : 1~{self.rows}')
+                return
 
     def exit_dialog(self):
         # 다이얼 로그 종료
@@ -579,13 +636,13 @@ class replace_Func(QDialog):
 
     def accept_func(self):
         # 다이얼 로그 값 전달
-        fine_text = self.lineedit1.text()
+        find_text = self.lineedit1.text()
         replace_text = self.lineedit2.text()
         if self.checkbox1.isChecked():
             checkbox_value = True
         else:
             checkbox_value = False
-        self.main_window.do_replace(fine_text, replace_text, checkbox_value)
+        self.main_window.do_replace(find_text, replace_text, checkbox_value)
 
     def exit_dialog(self):
         # 다이얼 로그 종료
