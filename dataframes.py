@@ -92,3 +92,12 @@ def duplicate_data(df, cmb1, radio_btn1):
     duplicated = df.drop_duplicates(subset=cmb1, keep=radio_btn1)
     return duplicated
 
+
+def text_filter(df, criteria_col, criteria_text, checkbox_value):
+    df = df.applymap(str)
+    if checkbox_value:
+        text_filtered_df = df[df[criteria_col] == criteria_text]
+    else:
+        text_filtered_df = df[df[criteria_col].str.contains(criteria_text)]
+    return text_filtered_df
+

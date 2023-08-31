@@ -135,11 +135,10 @@ class MainWindow(QMainWindow):
             self.df_to_table(df)
             self.tab1_df = df
         except Exception as e:
-            print(e)
-        QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 테이블에 불러 올 수 없습니다. {e}'
-                                            f'\n1. 파일이 올바른 형식 인지 확인해 주세요.'
-                                            f'\n2. 파일 내부 데이터에 문제가 있을 수 있습니다.'
-                                            f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
+            QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 테이블에 불러 올 수 없습니다. {e}'
+                                                f'\n1. 파일이 올바른 형식 인지 확인해 주세요.'
+                                                f'\n2. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def multiple_sheet_excel_file_conversion(self, file_paths):
         # 엑셀 파일 병합
@@ -148,11 +147,10 @@ class MainWindow(QMainWindow):
             self.df_to_table(df)
             self.tab1_df = df
         except Exception as e:
-            print(e)
-        QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 테이블에 불러 올 수 없습니다. {e}'
-                                            f'\n1. 파일이 올바른 형식 인지 확인해 주세요.'
-                                            f'\n2. 파일 내부 데이터에 문제가 있을 수 있습니다.'
-                                            f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
+            QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 테이블에 불러 올 수 없습니다. {e}'
+                                                f'\n1. 파일이 올바른 형식 인지 확인해 주세요.'
+                                                f'\n2. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def list_widget_exec(self, file_path):
         # 탭2 파일 목록 노출
@@ -283,6 +281,11 @@ class MainWindow(QMainWindow):
         for i in reversed(blank_rows_index):
             self.tab_widget.currentWidget().table_widget.removeRow(i)
 
+    def text_filter_dialog(self):
+        # 찾아 바꾸기 다이얼 로그 호출
+        dialog = text_filter_Func(self, self.header)
+        dialog.exec()
+
     def do_group_by(self, cmb1, cmb2, radio_btn1):
         # 다이얼 로그 값을 받아와 집계 기능 실행
         if self.tab_widget.currentIndex() == 0:
@@ -360,6 +363,19 @@ class MainWindow(QMainWindow):
                     elif not if_exact:
                         new_text = re.sub(find_text, replace_text, text)
                         item.setText(new_text)
+
+    def do_text_filter(self, criteria_col, criteria_text, checkbox_value):
+        try:
+            if self.tab_widget.currentIndex() == 0:
+                text_filtered_df = dataframes.text_filter(self.tab1_df, criteria_col, criteria_text, checkbox_value)
+            elif self.tab_widget.currentIndex() == 1:
+                text_filtered_df = dataframes.text_filter(self.tab2_df, criteria_col, criteria_text, checkbox_value)
+            else:
+                return
+            self.df_to_table(text_filtered_df)
+            self.data_update()
+        except Exception as e:
+            print(e)
 
     def dataframe_to_excel(self):
         # 데이터 프레임 기준 엑셀 파일 추출

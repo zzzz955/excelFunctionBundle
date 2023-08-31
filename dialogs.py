@@ -20,7 +20,8 @@ class func_Bundle(QDialog):
         self.do_insert_btn_v = QPushButton('열 일괄 삽입')
         self.do_delete_btn_v = QPushButton('열 일괄 삭제')
         self.do_replace_btn = QPushButton('찾아 바꾸기')
-        self.do_clear_black_row = QPushButton('빈 행 삭제')
+        self.do_clear_black_row_btn = QPushButton('빈 행 삭제')
+        self.do_text_filter_btn = QPushButton('텍스트 필터 적용')
         self.exit_dialog_btn = QPushButton('종료')
 
         # 레이아웃 지정
@@ -32,7 +33,8 @@ class func_Bundle(QDialog):
         layout2.addWidget(self.do_insert_btn_v, 2, 0)
         layout2.addWidget(self.do_delete_btn_v, 2, 1)
         layout2.addWidget(self.do_replace_btn, 3, 0)
-        layout2.addWidget(self.do_clear_black_row, 3, 1)
+        layout2.addWidget(self.do_clear_black_row_btn, 3, 1)
+        layout2.addWidget(self.do_text_filter_btn, 4, 0)
         layout.addWidget(self.exit_dialog_btn)
         self.setLayout(layout)
         
@@ -44,7 +46,8 @@ class func_Bundle(QDialog):
         self.do_insert_btn_v.clicked.connect(self.con_col_insert_dialog)
         self.do_delete_btn_v.clicked.connect(self.con_col_delete_dialog)
         self.do_replace_btn.clicked.connect(self.con_replace_dialog)
-        self.do_clear_black_row.clicked.connect(self.con_clear_black_row)
+        self.do_clear_black_row_btn.clicked.connect(self.con_clear_black_row)
+        self.do_text_filter_btn.clicked.connect(self.con_text_filter_dialog)
         self.exit_dialog_btn.clicked.connect(self.exit_dialog)
         
         # 데이터 확인
@@ -100,6 +103,12 @@ class func_Bundle(QDialog):
         if self.table_data.rowCount() > 0:
             self.accept()
             self.main_window.clear_black_row()
+
+    def con_text_filter_dialog(self):
+        # 필터 관련 다이얼 로그 호출 함수
+        if self.table_data.rowCount() > 0:
+            self.accept()
+            self.main_window.text_filter_dialog()
 
     def exit_dialog(self):
         # 다이얼 로그 종료
@@ -724,3 +733,71 @@ class replace_Func(QDialog):
     def exit_dialog(self):
         # 다이얼 로그 종료
         self.close()
+
+
+class text_filter_Func(QDialog):
+    def __init__(self, main_window, header):
+        super().__init__()
+        self.setGeometry(850, 50, self.width(), self.height())
+        self.setWindowTitle('텍스트 필터링')
+        self.main_window = main_window
+        self.header = header
+
+        # 위젯 추가
+        layout = QVBoxLayout()
+        layout2 = QHBoxLayout()
+        layout3 = QHBoxLayout()
+        layout4 = QHBoxLayout()
+        layout5 = QHBoxLayout()
+        self.label1 = QLabel('<b>기준 Column : </b>')
+        self.combobox1 = QComboBox()
+        self.label2 = QLabel('<b>필터링 텍스트 : </b>')
+        self.lineedit1 = QLineEdit()
+        self.label3 = QLabel('<b>정확히 일치 여부 : </b>')
+        self.checkbox1 = QCheckBox()
+        self.accept_btn = QPushButton('적용')
+        self.exit_dialog_btn = QPushButton('취소')
+
+        # 레이아웃 지정
+        layout.addLayout(layout2)
+        layout2.addWidget(self.label1)
+        layout2.addWidget(self.combobox1)
+
+        layout.addLayout(layout3)
+        layout3.addWidget(self.label2)
+        layout3.addWidget(self.lineedit1)
+
+        layout.addLayout(layout4)
+        layout4.addWidget(self.label3)
+        layout4.addWidget(self.checkbox1)
+        layout4.addStretch(1)
+
+        layout.addLayout(layout5)
+        layout5.addWidget(self.accept_btn)
+        layout5.addWidget(self.exit_dialog_btn)
+        self.setLayout(layout)
+
+        # 시그널 추가
+        self.accept_btn.clicked.connect(self.accept_func)
+        self.exit_dialog_btn.clicked.connect(self.exit_dialog)
+
+        self.add_comboboxes_items()
+
+    def add_comboboxes_items(self):
+        self.combobox1.addItems(self.header)
+
+    def accept_func(self):
+        # 다이얼 로그 값 전달
+        criteria_col = self.combobox1.currentText()
+        criteria_text = self.lineedit1.text()
+        if self.checkbox1.isChecked():
+            checkbox_value = True
+        else:
+            checkbox_value = False
+        self.accept()
+        self.main_window.do_text_filter(criteria_col, criteria_text, checkbox_value)
+
+    def exit_dialog(self):
+        # 다이얼 로그 종료
+        self.reject()
+
