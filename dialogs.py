@@ -215,7 +215,7 @@ class duplicate_Func(QDialog):
         layout4 = QHBoxLayout()
         self.label1 = QLabel('기준 Column')
         self.cmb1 = QComboBox()
-        self.label2 = QLabel('남길 Row : ')
+        self.label2 = QLabel('중복 제거 후 남길 Row : ')
         self.radio_btn1 = QRadioButton('맨 위', self)
         self.radio_btn2 = QRadioButton('맨 아래', self)
         self.accept_btn = QPushButton('중복 제거')
@@ -254,7 +254,7 @@ class duplicate_Func(QDialog):
         elif self.radio_btn2.isChecked():
             self.selected_radio_button = 'last'
         else:
-            QMessageBox.warning(self, '경고', '집계 함수를 선택해 주세요.')
+            QMessageBox.warning(self, '경고', '중복 제거 후 남길 Row 기준을 선택해 주세요.')
             return
         self.accept()
 
