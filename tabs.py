@@ -2,7 +2,9 @@ import os
 import pandas as pd
 import dataframes
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QPushButton, \
-    QLabel, QHBoxLayout, QTableWidget, QComboBox, QMessageBox
+    QLabel, QHBoxLayout, QTableWidget, QComboBox, QMessageBox, QGridLayout
+from PyQt5.Qt import Qt
+
 
 class Tab1(QWidget):
     def __init__(self, main_window):
@@ -34,6 +36,7 @@ class Tab1(QWidget):
         self.excel_download_btn2.clicked.connect(self.main_window.table_to_excel)
         self.table_widget.horizontalHeader().sortIndicatorChanged.connect(self.main_window.sort_table)
 
+
 class Tab2(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -41,7 +44,7 @@ class Tab2(QWidget):
 
         # 위젯 추가
         self.layout = QVBoxLayout()
-        layout1 = QHBoxLayout()
+        layout1 = QGridLayout()
         layout2 = QHBoxLayout()
         layout3 = QHBoxLayout()
         self.t2label1 = QLabel('<b>파일 정보 : </b>')
@@ -56,10 +59,12 @@ class Tab2(QWidget):
 
         # 레이아웃 지정
         self.layout.addLayout(layout1)
-        layout1.addWidget(self.t2label1)
-        layout1.addWidget(self.file_list_btn)
-        layout1.addWidget(self.t2label2)
-        layout1.addWidget(self.combobox1)
+        layout1.addWidget(self.t2label1, 0, 0)
+        layout1.addWidget(self.file_list_btn, 0, 1)
+        layout1.addWidget(self.t2label2, 0, 2)
+        layout1.addWidget(self.combobox1, 0, 3)
+        self.t2label1.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.t2label2.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
         self.layout.addLayout(layout2)
         layout2.addWidget(self.label1)

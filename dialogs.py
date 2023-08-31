@@ -459,7 +459,7 @@ class insert_row_Func(QDialog):
 class delete_col_Func(QDialog):
     def __init__(self, main_window, header):
         super().__init__()
-        self.setGeometry(850, 50, self.width(), self.height())
+        self.setGeometry(850, 50, 300, 100)
         self.setWindowTitle('데이터 삭제')
         self.main_window = main_window
         self.header = header
@@ -520,7 +520,7 @@ class delete_col_Func(QDialog):
 class delete_row_Func(QDialog):
     def __init__(self, main_window, rows):
         super().__init__()
-        self.setGeometry(850, 50, self.width(), self.height())
+        self.setGeometry(850, 50, 300, 100)
         self.setWindowTitle('데이터 삭제')
         self.main_window = main_window
         self.rows = rows
@@ -738,7 +738,7 @@ class replace_Func(QDialog):
 class text_filter_Func(QDialog):
     def __init__(self, main_window, header):
         super().__init__()
-        self.setGeometry(850, 50, self.width(), self.height())
+        self.setGeometry(850, 50, self.width(), 200)
         self.setWindowTitle('텍스트 필터링')
         self.main_window = main_window
         self.header = header

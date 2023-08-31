@@ -201,8 +201,11 @@ class MainWindow(QMainWindow):
         # 탭 변경 시 헤더 데이터 변경
         self.header = []
         for column in range(self.tab_widget.currentWidget().table_widget.columnCount()):
-            header_item = self.tab_widget.currentWidget().table_widget.horizontalHeaderItem(column)
-            self.header.append(header_item.text())
+            if self.tab_widget.currentWidget().table_widget.horizontalHeaderItem(column) is not None:
+                header_item = self.tab_widget.currentWidget().table_widget.horizontalHeaderItem(column)
+                self.header.append(header_item.text())
+            else:
+                return
 
     def group_by_dialog(self):
         # 집계 함수 다이얼 로그 호출
@@ -275,7 +278,10 @@ class MainWindow(QMainWindow):
             items = []
             for col in range(self.tab_widget.currentWidget().table_widget.columnCount()):
                 item = self.tab_widget.currentWidget().table_widget.item(row, col)
-                items.append(item.text())
+                if item is not None:
+                    items.append(item.text())
+                else:
+                    items.append('')
             if all(item == '' for item in items):
                 blank_rows_index.append(row)
         for i in reversed(blank_rows_index):
