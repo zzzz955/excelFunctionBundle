@@ -1,4 +1,3 @@
-import re
 from PyQt5.QtWidgets import QComboBox, QRadioButton, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
     QMessageBox, QLineEdit, QTableWidget, QListWidget, QGridLayout, QCheckBox
 from PyQt5.QtGui import QValidator, QIntValidator
@@ -8,7 +7,6 @@ from PyQt5.QtCore import Qt
 class func_Bundle(QDialog):
     def __init__(self, main_window):
         super().__init__()
-        #self.setGeometry(850, 50, self.width(), self.height())
         self.setWindowTitle('기능 모음')
         self.main_window = main_window
         
@@ -342,7 +340,7 @@ class insert_row_Func(QDialog):
         self.main_window = main_window
         self.header = header
         self.rows = rows
-        self.setGeometry(self.x(), self.y(), 800, self.height())
+        self.setGeometry(850, 50, 800, self.height())
 
         # 위젯 추가
         layout = QVBoxLayout()

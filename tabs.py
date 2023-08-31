@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import dataframes
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QPushButton, \
-    QLabel, QHBoxLayout, QTableWidget, QComboBox
+    QLabel, QHBoxLayout, QTableWidget, QComboBox, QMessageBox
 
 class Tab1(QWidget):
     def __init__(self, main_window):
@@ -94,7 +94,13 @@ class Tab2(QWidget):
 
     def combobox_value_changed(self):
         # 콤보 박스 값 변경 시 테이블 최신화
-        current_sheet_name = self.combobox1.currentText()
-        df = dataframes.file_change(self.file_path, current_sheet_name)
-        self.main_window.tab2_df = df
-        self.main_window.df_to_table(df)
+        try:
+            current_sheet_name = self.combobox1.currentText()
+            df = dataframes.file_change(self.file_path, current_sheet_name)
+            self.main_window.tab2_df = df
+            self.main_window.df_to_table(df)
+        except Exception as e:
+            QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 테이블에 불러 올 수 없습니다. {e}'
+                                                f'\n1. 파일이 올바른 형식 인지 확인해 주세요.'
+                                                f'\n2. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')

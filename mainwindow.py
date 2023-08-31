@@ -1,3 +1,4 @@
+import re
 import sys
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QTableWidget, QTableWidgetItem, QFileDialog
@@ -129,23 +130,43 @@ class MainWindow(QMainWindow):
 
     def single_sheet_excel_file_conversion(self, file_paths):
         # 엑셀 파일 병합
-        df = dataframes.concat_singlesheet_excelfiles(file_paths)
-        self.df_to_table(df)
-        self.tab1_df = df
+        try:
+            df = dataframes.concat_singlesheet_excelfiles(file_paths)
+            self.df_to_table(df)
+            self.tab1_df = df
+        except Exception as e:
+            print(e)
+        QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 테이블에 불러 올 수 없습니다. {e}'
+                                            f'\n1. 파일이 올바른 형식 인지 확인해 주세요.'
+                                            f'\n2. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                            f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def multiple_sheet_excel_file_conversion(self, file_paths):
         # 엑셀 파일 병합
-        df = dataframes.concat_multiplesheets_excelfiles(file_paths)
-        self.df_to_table(df)
-        self.tab1_df = df
+        try:
+            df = dataframes.concat_multiplesheets_excelfiles(file_paths)
+            self.df_to_table(df)
+            self.tab1_df = df
+        except Exception as e:
+            print(e)
+        QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 테이블에 불러 올 수 없습니다. {e}'
+                                            f'\n1. 파일이 올바른 형식 인지 확인해 주세요.'
+                                            f'\n2. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                            f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def list_widget_exec(self, file_path):
         # 탭2 파일 목록 노출
-        self.tab_widget.setCurrentIndex(1)
-        file_path, current_sheet_name = self.tab2.combobox1_add_items(file_path)
-        df = dataframes.file_change(file_path, current_sheet_name)
-        self.tab2_df = df
-        self.df_to_table(df)
+        try:
+            self.tab_widget.setCurrentIndex(1)
+            file_path, current_sheet_name = self.tab2.combobox1_add_items(file_path)
+            df = dataframes.file_change(file_path, current_sheet_name)
+            self.tab2_df = df
+            self.df_to_table(df)
+        except Exception as e:
+            QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 테이블에 불러 올 수 없습니다. {e}'
+                                                f'\n1. 파일이 올바른 형식 인지 확인해 주세요.'
+                                                f'\n2. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def df_to_table(self, df):
         # 데이터 프레임 테이블 위젯 추가
@@ -235,20 +256,14 @@ class MainWindow(QMainWindow):
             return
 
     def delete_col_dialog(self):
-        try:
-            # 열 삭제 다이얼 로그 호출
-            dialog = delete_col_Func(self, self.header)
-            dialog.exec()
-        except Exception as e:
-            print(e)
+        # 열 삭제 다이얼 로그 호출
+        dialog = delete_col_Func(self, self.header)
+        dialog.exec()
 
     def delete_row_dialog(self):
         # 행 삭제 다이얼 로그 호출
-        try:
-            dialog = delete_row_Func(self, self.rows)
-            dialog.exec()
-        except Exception as e:
-            print(e)
+        dialog = delete_row_Func(self, self.rows)
+        dialog.exec()
 
     def replace_dialog(self):
         # 찾아 바꾸기 다이얼 로그 호출
@@ -348,15 +363,22 @@ class MainWindow(QMainWindow):
 
     def dataframe_to_excel(self):
         # 데이터 프레임 기준 엑셀 파일 추출
-        if self.tab_widget.currentWidget().table_widget.rowCount() > 0:
-            save_file_path, _ = QFileDialog.getSaveFileName(self, '파일 선택', '', 'Excel File(*.xlsx)')
-            if not save_file_path:
-                return
-            if self.tab_widget.currentIndex() == 0:
-                dataframes.df_to_excel(self.tab1_df, save_file_path)
-            elif self.tab_widget.currentIndex() == 1:
-                dataframes.merge_to_excel_download(self.file_paths, save_file_path)
-            self.open_filepath(save_file_path)
+        try:
+            if self.tab_widget.currentWidget().table_widget.rowCount() > 0:
+                save_file_path, _ = QFileDialog.getSaveFileName(self, '파일 선택', '', 'Excel File(*.xlsx)')
+                if not save_file_path:
+                    return
+                if self.tab_widget.currentIndex() == 0:
+                    dataframes.df_to_excel(self.tab1_df, save_file_path)
+                elif self.tab_widget.currentIndex() == 1:
+                    dataframes.merge_to_excel_download(self.file_paths, save_file_path)
+                self.open_filepath(save_file_path)
+        except Exception as e:
+            QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 저장 할 수 없습니다. {e}'
+                                                f'\n1. 파일이 열려있는 상태인지 확인해 주세요.'
+                                                f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
+                                                f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def table_to_excel(self):
         # 테이블 데이터 기준 엑셀 파일 추출
@@ -380,7 +402,11 @@ class MainWindow(QMainWindow):
                 dataframes.table_to_excel(save_file_path, header, data)
                 self.open_filepath(save_file_path)
         except Exception as e:
-            QMessageBox.warning(self, '경고', f'엑셀 파일을 저장할 수 없습니다. 해당 파일이 열려 있는 상태가 아닌지 확인해 보세요 {e}')
+            QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 저장 할 수 없습니다. {e}'
+                                                f'\n1. 파일이 열려있는 상태인지 확인해 주세요.'
+                                                f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
+                                                f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def open_filepath(self, file_path):
         # 저장 후 파일 열기 기능
