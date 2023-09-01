@@ -19,7 +19,7 @@ class func_Bundle(QDialog):
         self.do_delete_btn_h = QPushButton('행 일괄 삭제')
         self.do_insert_btn_v = QPushButton('열 일괄 삽입')
         self.do_delete_btn_v = QPushButton('열 일괄 삭제')
-        self.do_replace_btn = QPushButton('찾아 바꾸기')
+        self.do_replace_btn = QPushButton('문자열 변환')
         self.do_clear_black_row_btn = QPushButton('빈 행 삭제')
         self.do_text_filter_btn = QPushButton('텍스트 필터 적용')
         self.exit_dialog_btn = QPushButton('종료')

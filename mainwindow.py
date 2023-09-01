@@ -272,7 +272,7 @@ class MainWindow(QMainWindow):
         dialog.show()
 
     def clear_black_row(self):
-        # 빈 행 삭제 다이얼 로그 호출
+        # 빈 행 삭제 기능 실행
         blank_rows_index = []
         for row in range(self.tab_widget.currentWidget().table_widget.rowCount()):
             items = []
@@ -286,6 +286,7 @@ class MainWindow(QMainWindow):
                 blank_rows_index.append(row)
         for i in reversed(blank_rows_index):
             self.tab_widget.currentWidget().table_widget.removeRow(i)
+            self.data_update()
 
     def text_filter_dialog(self):
         # 찾아 바꾸기 다이얼 로그 호출
@@ -425,9 +426,9 @@ class MainWindow(QMainWindow):
                 self.open_filepath(save_file_path)
         except Exception as e:
             QMessageBox.critical(self, '예외 발생', f'엑셀 파일을 저장 할 수 없습니다. {e}'
-                                                f'\n1. 파일이 열려있는 상태인지 확인해 주세요.'
-                                                f'\n2. 파일이 올바른 형식 인지 확인해 주세요.'
-                                                f'\n3. 파일 내부 데이터에 문제가 있을 수 있습니다.'
+                                                f'\n1. 저장할 엑셀 파일이 열려있는 상태인지 확인해 주세요.'
+                                                f'\n2. 테이블 데이터가 올바른 형식 인지 확인해 주세요.'
+                                                f'\n3. 테이블 데이터에 문제가 있을 수 있습니다.'
                                                 f'\n → [*.*], (*.*), /| 등의 특수 문자를 제거 후 시도해 주세요.')
 
     def open_filepath(self, file_path):
