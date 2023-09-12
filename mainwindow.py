@@ -448,7 +448,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    apply_stylesheet(app, theme='custom.xml')
+    apply_stylesheet(app, theme='dark_teal.xml')
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
